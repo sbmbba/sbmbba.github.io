@@ -213,13 +213,17 @@ BK 3 ; 60"></textarea>
 
 <div class="modal" id="io"><div class="box">
   <h2 style="margin-top:0">Simpan / Muat data</h2>
-  <p class="muted">Data disimpan automatik dalam pelayar ini sahaja. Untuk simpanan kekal atau berkongsi, salin JSON di bawah dan simpan dalam fail. Untuk memuat, tampal JSON atau pilih fail.</p>
+  <p class="muted">Data disimpan automatik dalam pelayar ini sahaja. Untuk simpanan kekal atau berkongsi, salin JSON di bawah dan simpan dalam fail. Untuk memuat, tampal JSON atau pilih fail. <b>Memuat fail akan menggantikan semua data semasa</b> — sistem simpan satu sandaran automatik yang boleh dipulihkan di bawah.</p>
   <textarea id="taIO" style="min-height:200px"></textarea>
   <div class="row" style="margin-top:10px">
     <button class="btn sm" onclick="copyText(JSON.stringify(stripResult(),null,1),'JSON disalin')">Salin JSON</button>
     <input type="file" id="fileIO" accept=".json,.txt" onchange="loadFile(this)">
     <button class="btn sm pri" onclick="loadJSON()">Muat dari teks</button>
     <button class="btn sm" onclick="closeIO()">Tutup</button>
+  </div>
+  <div class="row" style="margin-top:10px;border-top:1px solid var(--line);padding-top:10px">
+    <span class="muted" id="bkInfo"></span>
+    <button class="btn sm del" id="bkBtn" onclick="restoreBackup()">↶ Pulihkan data sebelum muat</button>
   </div>
 </div></div>
 <div id="toast"></div>
@@ -612,9 +616,11 @@ function newSemDlg(){const m=document.createElement('div');m.className='modal on
     if(!state.semList.includes(state.cur))state.semList.push(state.cur);state.cur=code;state.result=null;state.fixed=[];save();m.remove();renderAll();renderBeban();toast('Semester '+code+' dimulakan')}}
 
 /* IO */
-function openIO(){document.getElementById('io').classList.add('on')}
+function openIO(){document.getElementById('io').classList.add('on');let bk=null;try{bk=JSON.parse(localStorage.getItem('bbaSched_backup')||'null')}catch(e){}
+  document.getElementById('bkInfo').textContent=bk?`Sandaran automatik sebelum muat terakhir: ${bk.at} (${bk.data.lects.length} pensyarah).`:'Tiada sandaran automatik lagi.';document.getElementById('bkBtn').style.display=bk?'':'none'}
+function restoreBackup(){try{const bk=JSON.parse(localStorage.getItem('bbaSched_backup'));if(!bk)return;const cur=state;state=bk.data;ensure();localStorage.setItem('bbaSched_backup',JSON.stringify({at:new Date().toLocaleString('ms-MY'),data:cur}));save();renderAll();closeIO();toast('Data sebelum muat dipulihkan')}catch(e){toast('Gagal memulihkan')}}
 function closeIO(){document.getElementById('io').classList.remove('on')}
-function applyLoaded(o){if(!o||!o.courses||!o.lects)throw 0;state=Object.assign(JSON.parse(JSON.stringify(DEFAULT)),o);state.result=null;ensure();save();renderAll();closeIO();toast('Data dimuat')}
+function applyLoaded(o){if(!o||!o.courses||!o.lects)throw 0;try{localStorage.setItem('bbaSched_backup',JSON.stringify({at:new Date().toLocaleString('ms-MY'),data:state}))}catch(e){}state=Object.assign(JSON.parse(JSON.stringify(DEFAULT)),o);state.result=null;ensure();save();renderAll();closeIO();toast('Data dimuat')}
 function loadJSON(){try{applyLoaded(JSON.parse(document.getElementById('taIO').value))}catch(e){toast('JSON tidak sah')}}
 function loadFile(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{applyLoaded(JSON.parse(r.result))}catch(e){toast('Fail tidak sah')}};r.readAsText(f)}
 function resetAll(){const b=document.getElementById('btnReset');if(!b){const m=document.createElement('div');m.className='modal on';m.id='rm';m.innerHTML='<div class="box"><h2 style="margin-top:0">Set semula semua data?</h2><p class="muted">Semua kursus, pensyarah, bilik dan jadual akan kembali kepada nilai asal. Salin JSON dahulu jika mahu simpan.</p><div class="row"><button class="btn del" id="btnReset">Ya, set semula</button><button class="btn" onclick="document.getElementById(\'rm\').remove()">Batal</button></div></div>';document.body.appendChild(m);
