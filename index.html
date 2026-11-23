@@ -100,7 +100,7 @@ textarea{width:100%;font:13px/1.4 ui-monospace,Consolas,monospace;padding:8px;bo
 <section class="tabpane" id="t-pensyarah">
   <div class="card">
     <h2>2. Pensyarah &amp; kuota</h2>
-    <p class="h">Kuota ikut jenis (boleh diganti setiap orang). Klik kod kursus yang boleh diajar. <i>Corak hari</i> kosong = semua dibenarkan. <i>Hari tidak boleh</i> = hari pensyarah tidak boleh mengajar.</p>
+    <p class="h">Kuota ikut jenis (boleh diganti setiap orang). Klik kod kursus yang boleh diajar (<u><b>bergaris</b></u> = diajar semester lepas; sistem utamakan kursus ini). <i>Corak hari</i> kosong = semua dibenarkan. <i>Hari tidak boleh</i> = hari pensyarah tidak boleh mengajar.</p>
     <div class="scroll"><table id="tblLects"></table></div>
     <div class="row" style="margin-top:10px">
       <button class="btn sm" onclick="addLect()">+ Tambah pensyarah</button>
@@ -294,7 +294,7 @@ function renderLects(){
     h+=`<tr><td><input value="${esc(l.name)}" onchange="state.lects[${i}].name=this.value;save();renderAll()"></td>
     <td><select onchange="state.lects[${i}].type=+this.value;save();renderAll()" style="width:150px">${state.types.map(t=>`<option value="${t.id}" ${t.id==l.type?'selected':''}>${t.id} · ${esc(t.name)}</option>`).join('')}</select></td>
     <td><input class="num" type="number" style="width:60px" placeholder="${quotaOf({...l,qovr:''})}" value="${esc(l.qovr)}" onchange="state.lects[${i}].qovr=this.value;save();renderAll()"></td>
-    <td><div class="chips">${state.courses.map(c=>`<span class="chip ${l.courses.includes(c.code)?'on':''}" title="${esc(c.name)}" onclick="tog(${i},'courses','${esc(c.code)}')">${esc(c.code)}</span>`).join('')}</div></td>
+    <td><div class="chips">${state.courses.map(c=>`<span class="chip ${l.courses.includes(c.code)?'on':''}" style="${(l.prev||[]).includes(c.code)?'font-weight:700;text-decoration:underline':''}" title="${esc(c.name)}${(l.prev||[]).includes(c.code)?' (diajar A261)':''}" onclick="tog(${i},'courses','${esc(c.code)}')">${esc(c.code)}</span>`).join('')}</div></td>
     <td><div class="chips">${state.patterns.map(p=>`<span class="chip ${l.patterns.includes(p.code)?'on':''}" onclick="tog(${i},'patterns','${esc(p.code)}')">${esc(p.code)}</span>`).join('')}</div></td>
     <td><select onchange="state.lects[${i}].time=this.value;save()" style="width:95px"><option value="all" ${l.time==='all'?'selected':''}>Bebas</option><option value="am" ${l.time==='am'?'selected':''}>Pagi sahaja</option><option value="pm" ${l.time==='pm'?'selected':''}>Petang sahaja</option></select></td>
     <td><div class="chips">${DAYS.map((d,di)=>`<span class="chip off-red ${l.blocked.includes(di)?'on':''}" onclick="tog(${i},'blocked',${di})">${d.slice(0,3)}</span>`).join('')}</div></td>
@@ -311,7 +311,8 @@ function importPrev(){
   const codes=new Set(state.courses.map(c=>c.code));
   lines.forEach(L=>{const p=L.split('\t').map(x=>x.trim());const ci=p.findIndex(x=>/^[A-Z]{3,6}\d{3,5}$/i.test(x));if(ci<0)return;
     const code=p[ci].toUpperCase();rows++;
-    let name=(p[ci+10]||'').replace(/^\(\s*\)$/,'').trim();
+    let name='';for(let j=ci+1;j<p.length;j++){if(/\(\d{3,5}\)\s*$/.test(p[j])||/^(Prof|Dr|Encik|Puan|En\.|Pn\.|Tuan)/i.test(p[j])){name=p[j];break}}
+    if(!name)name=p[ci+10]||'';name=name.replace(/^\(\s*\)$/,'').trim();
     if(!name||/^SBM$|^\d+$/.test(name)){noName++;return}
     name=name.replace(/\s+/g,' ');if(!codes.has(code))return;
     const m=map[name]=map[name]||{courses:{},n:0};m.courses[code]=(m.courses[code]||0)+1;m.n++});
@@ -319,7 +320,7 @@ function importPrev(){
   if(!names.length){msg.innerHTML='<b class="bad">Tiada nama pensyarah dijumpai'+(noName?` — ${noName} baris mempunyai lajur NAMA PENSYARAH kosong "( )". Isi nama dahulu dalam Excel.`:'.')+'</b>';return}
   state.lects=state.lects.filter(l=>!l.name.startsWith('Contoh:'));
   names.forEach(n=>{const cs=Object.keys(map[n].courses);const ex=state.lects.find(l=>l.name.toLowerCase()===n.toLowerCase());
-    if(ex){cs.forEach(c=>{if(!ex.courses.includes(c))ex.courses.push(c)})}else state.lects.push({id:state.nextId++,name:n,type:1,qovr:'',courses:cs,patterns:[],time:'all',blocked:[],prev:map[n].n})});
+    if(ex){ex.prev=[...new Set([...(ex.prev||[]),...cs])];cs.forEach(c=>{if(!ex.courses.includes(c))ex.courses.push(c)})}else state.lects.push({id:state.nextId++,name:n,type:1,qovr:'',courses:cs,prev:cs.slice(),patterns:[],time:'all',blocked:[]})});
   save();renderAll();msg.innerHTML=`<b class="ok">${names.length} pensyarah diimport dari ${rows} baris.</b>`+(noName?` ${noName} baris tanpa nama dilangkau.`:'')+' Sila tetapkan Jenis (1–5) setiap pensyarah.';
 }
 function importLects(){
@@ -411,31 +412,40 @@ function runOnce(P,rnd){
   const elig={};state.courses.forEach(c=>elig[c.code]=state.lects.filter(l=>l.courses.includes(c.code)).length);
   const secs=[];state.courses.forEach(c=>{for(let i=0;i<remaining[c.code];i++)secs.push({c,key:elig[c.code]+rnd()*1.5})});
   secs.sort((a,b)=>a.key-b.key);
+  const roomsSorted=state.rooms.slice().sort((a,b)=>a.cap-b.cap);
+  function pickRoom(l,c,ps){
+    // prefer room the lecturer uses in an adjacent slot
+    for(const x of ps.cells){const [d,s]=x.split('-');for(const nb of [d+'-'+(+s-1),d+'-'+(+s+1)]){const r=lecRoomAt[l.id+'|'+nb];if(r&&roomBusy[r]&&roomFree(r,ps.cells)){const rr=state.rooms.find(z=>z.name===r);if(rr&&rr.cap>=c.cap)return {room:r,pen:(rr.cap-c.cap)/50-0.6}}}}
+    for(const r of roomsSorted)if(r.cap>=c.cap&&roomFree(r.name,ps.cells))return {room:r.name,pen:(r.cap-c.cap)/50};
+    for(let i=roomsSorted.length-1;i>=0;i--){const r=roomsSorted[i];if(roomFree(r.name,ps.cells))return {room:r.name,pen:50+(c.cap-r.cap)}}
+    return null;
+  }
   for(const {c} of secs){
-    let best=null,bc=Infinity;
+    const cand=[];
     for(const l of state.lects){
       if(!l.courses.includes(c.code))continue;const q=quotaOf(l);if(used[l.id]>=q)continue;
       for(const ps of P){
         if(!lectAllows(l,ps))continue;
         if(ps.cells.some(x=>lecBusy[l.id].has(x)))continue;
         let sc=0;const k=ps.pat+'|'+ps.s;
-        sc+=3*(coursePos[c.code+'|'+k]||0);         // spread same course
-        sc+=0.35*(posCount[k]||0);                   // spread overall
-        if(teach[l.id].has(c.code))sc-=2;else if(teach[l.id].size)sc+=2; // fewer preps
-        sc-=1.5*((q-used[l.id])/Math.max(1,q));      // balance load
-        let adj=0;for(const x of ps.cells){const [d,s]=x.split('-').map(Number);if(lecBusy[l.id].has(d+'-'+(s-1))||lecBusy[l.id].has(d+'-'+(s+1)))adj++;const dl=(dayLoad[l.id+'|'+d]||0)+1;if(dl>3)sc+=4}
+        sc+=3*(coursePos[c.code+'|'+k]||0);
+        sc+=0.35*(posCount[k]||0);
+        if(teach[l.id].has(c.code))sc-=2;else if(teach[l.id].size)sc+=2;
+        if(l.prev&&l.prev.length&&!l.prev.includes(c.code))sc+=5;
+        sc-=1.5*((q-used[l.id])/Math.max(1,q));
+        let adj=0;for(const x of ps.cells){const [d,s]=x.split('-').map(Number);if(lecBusy[l.id].has(d+'-'+(s-1))||lecBusy[l.id].has(d+'-'+(s+1)))adj++;if((dayLoad[l.id+'|'+d]||0)+1>3)sc+=4}
         sc-=0.3*adj;
         sc+=rnd()*0.9;
-        // room
-        let room='',rpen=0;
-        if(hasRooms){let rb=null,rbs=Infinity;
-          for(const r of state.rooms){if(!roomFree(r.name,ps.cells))continue;let rs=r.cap>=c.cap?(r.cap-c.cap)/50:50+(c.cap-r.cap);
-            for(const x of ps.cells){const [d,s]=x.split('-').map(Number);if(lecRoomAt[l.id+'|'+d+'-'+(s-1)]===r.name||lecRoomAt[l.id+'|'+d+'-'+(s+1)]===r.name)rs-=0.6}
-            if(rs<rbs){rbs=rs;rb=r.name}}
-          if(!rb)continue;room=rb;rpen=rbs}
-        sc+=rpen;
-        if(sc<bc){bc=sc;best={l,ps,room}}
+        cand.push({l,ps,sc});
       }
+    }
+    cand.sort((a,b)=>a.sc-b.sc);
+    let best=null,bc=Infinity;
+    for(const cd of cand){
+      if(!hasRooms){best={l:cd.l,ps:cd.ps,room:''};bc=cd.sc;break}
+      const r=pickRoom(cd.l,c,cd.ps);if(!r)continue;
+      const tot=cd.sc+r.pen;if(tot<bc){bc=tot;best={l:cd.l,ps:cd.ps,room:r.room}}
+      if(r.pen<1)break;
     }
     if(best){commit(best.l,c,best.ps,best.room,false);cost+=bc;const r=state.rooms.find(x=>x.name===best.room);if(r&&r.cap<c.cap)cost+=20}
     else U.push(c.code);
@@ -497,7 +507,7 @@ function renderJana(){
   if(view==='kursus'){
     o+='<div class="scroll"><table><tr><th>Kod</th><th>Kursus</th><th>Kump.</th><th>Pensyarah</th><th>Hari</th><th>Masa</th><th>Bilik</th></tr>';
     state.courses.forEach(c=>{valid.filter(a=>a.course===c.code).sort((a,b)=>a.grp.length-b.grp.length||a.grp.localeCompare(b.grp)).forEach(a=>{
-      o+=`<tr><td>${esc(a.course)}</td><td>${esc(c.name)}</td><td><b>${a.grp}</b>${a.fixed?' <span class="tag warn">khas</span>':''}</td><td>${esc(L(a.lec))}</td><td>${a.days.map(d=>DAYS[d]).join(' & ')}</td><td>${slotRange(a.s,a.len)}</td><td>${esc(a.room||'–')}</td></tr>`})});
+      o+=`<tr><td>${esc(a.course)}</td><td>${esc(c.name)}</td><td><b>${a.grp}</b>${a.fixed?' <span class="tag warn">khas</span>':''}${isNew(a)?' <span class="tag bad">subjek baru</span>':''}</td><td>${esc(L(a.lec))}</td><td>${a.days.map(d=>DAYS[d]).join(' & ')}</td><td>${slotRange(a.s,a.len)}</td><td>${esc(a.room||'–')}</td></tr>`})});
     o+='</table></div>';
   }else if(view==='grid'){
     o+=`<div class="row noprint" style="margin-bottom:8px"><span class="muted">Tapis:</span><select id="gf" onchange="filt=this.value;renderJana()" style="padding:5px;border-radius:5px;border:1px solid var(--line)"><option value="">Semua</option>
@@ -523,9 +533,10 @@ function renderJana(){
   }
   o+='</div>';document.getElementById('results').innerHTML=o;
 }
+function isNew(a){const l=lectById(a.lec);return !!(l&&l.prev&&l.prev.length&&!l.prev.includes(a.course))}
 function copyCSV(){const R=state.result;if(!R)return;const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
-  const lines=[['Kod','Kursus','Kumpulan','Pensyarah','Hari','Masa','Bilik','Permohonan khas'].map(q).join(',')];
-  state.courses.forEach(c=>R.A.filter(a=>a.course===c.code).sort((a,b)=>a.grp.length-b.grp.length||a.grp.localeCompare(b.grp)).forEach(a=>lines.push([a.course,c.name,a.grp,lectById(a.lec)?.name||'',a.days.map(d=>DAYS[d]).join(' & '),slotRange(a.s,a.len),a.room||'',a.fixed?'Ya':''].map(q).join(','))));
+  const lines=[['Kod','Kursus','Kumpulan','Pensyarah','Hari','Masa','Bilik','Permohonan khas','Subjek baru'].map(q).join(',')];
+  state.courses.forEach(c=>R.A.filter(a=>a.course===c.code).sort((a,b)=>a.grp.length-b.grp.length||a.grp.localeCompare(b.grp)).forEach(a=>lines.push([a.course,c.name,a.grp,lectById(a.lec)?.name||'',a.days.map(d=>DAYS[d]).join(' & '),slotRange(a.s,a.len),a.room||'',a.fixed?'Ya':'',isNew(a)?'Ya':''].map(q).join(','))));
   copyText(lines.join('\n'),'CSV disalin — tampal dalam Excel')}
 
 /* IO */
