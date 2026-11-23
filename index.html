@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistem Penjadualan Kelas BBA – A262</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#14284b;--navy2:#1f3a68;--amber:#f5b800;--amber-l:#fff4cc;--bg:#f4f6fa;--card:#fff;--line:#dde3ec;--ink:#1b2333;--mute:#667085;--red:#c0392b;--red-l:#fdecea;--green:#1e7b4f;--green-l:#e6f4ec}
+*{box-sizing:border-box}
+body{margin:0;font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+header{background:var(--navy);color:#fff;padding:16px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between}
+header h1{margin:0;font-size:19px;font-weight:600}
+header .sub{font-size:12px;opacity:.75}
+nav{display:flex;gap:2px;background:var(--navy2);padding:0 16px;overflow-x:auto}
+nav button{background:none;border:0;color:#c9d3e6;padding:12px 14px;font:inherit;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav button.on{color:#fff;border-bottom-color:var(--amber)}
+main{padding:20px 24px;max-width:1400px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+.card h2{margin:0 0 4px;font-size:16px}
+.card p.h{margin:0 0 12px;color:var(--mute);font-size:13px}
+table{border-collapse:collapse;width:100%}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--amber-l);font-size:12px;text-transform:uppercase;letter-spacing:.02em;color:#5a4300}
+.scroll th{position:sticky;top:0;z-index:1}
+td input,td select{width:100%;font:inherit;padding:5px 6px;border:1px solid var(--line);border-radius:5px;background:#fff}
+td input.num{width:80px}
+.btn{font:inherit;font-weight:500;padding:7px 14px;border-radius:6px;border:1px solid var(--navy2);background:#fff;color:var(--navy2);cursor:pointer}
+.btn:hover{background:#eef2f9}
+.btn.pri{background:var(--navy2);color:#fff}
+.btn.pri:hover{background:var(--navy)}
+.btn.amb{background:var(--amber);border-color:#d9a300;color:#2b2100}
+.btn.sm{padding:3px 9px;font-size:12px}
+.btn.del{border-color:#e3b4ae;color:var(--red)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font-size:11.5px;padding:2px 8px;border-radius:12px;border:1px solid var(--line);background:#f7f8fb;cursor:pointer;user-select:none;color:var(--mute)}
+.chip.on{background:var(--navy2);border-color:var(--navy2);color:#fff}
+.chip.off-red.on{background:var(--red);border-color:var(--red)}
+textarea{width:100%;font:13px/1.4 ui-monospace,Consolas,monospace;padding:8px;border:1px solid var(--line);border-radius:6px;min-height:110px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.kpi .v{font-size:26px;font-weight:700}
+.kpi .l{font-size:12px;color:var(--mute)}
+.ok{color:var(--green)}.bad{color:var(--red)}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:10px;font-weight:600}
+.tag.ok{background:var(--green-l)}.tag.bad{background:var(--red-l)}.tag.warn{background:var(--amber-l);color:#7a5a00}
+.warnlist{margin:0;padding-left:18px}.warnlist li{margin:3px 0}
+.grid{overflow-x:auto}
+.grid table th{text-align:center}
+.grid td{min-width:180px;padding:4px}
+.grid td.slot{min-width:100px;background:#f7f8fb;font-weight:600;font-size:12px;white-space:nowrap}
+.cls{font-size:11.5px;border-left:3px solid var(--navy2);background:#eef2f9;border-radius:4px;padding:3px 6px;margin:3px 0;line-height:1.3}
+.cls b{font-weight:600}
+.cls .m{color:var(--mute)}
+.fixed{border-left-color:var(--amber);background:var(--amber-l)}
+.prog{height:6px;background:var(--line);border-radius:4px;overflow:hidden;flex:1;min-width:120px}
+.prog div{height:100%;width:0;background:var(--amber);transition:width .1s}
+.muted{color:var(--mute);font-size:12.5px}
+.tabpane{display:none}.tabpane.on{display:block}
+.scroll{max-height:560px;overflow:auto}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none}
+#toast.show{opacity:1}
+.modal{position:fixed;inset:0;background:rgba(10,20,40,.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:10}
+.modal.on{display:flex}
+.modal .box{background:#fff;border-radius:10px;padding:18px;max-width:700px;width:100%}
+@media print{nav,header .row,.noprint{display:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Sistem Penjadualan Kelas BBA</h1><div class="sub">Semester A262 · Masukkan kursus, pensyarah &amp; bilik → Jana jadual</div></div>
+  <div class="row">
+    <button class="btn sm" onclick="openIO()">Simpan / Muat data</button>
+    <button class="btn sm del" onclick="resetAll()">Set semula</button>
+  </div>
+</header>
+<nav id="nav"></nav>
+<main>
+
+<!-- KURSUS -->
+<section class="tabpane" id="t-kursus">
+  <div class="card">
+    <h2>1. Kursus yang ditawarkan</h2>
+    <p class="h">Bilangan kumpulan = Jumlah pelajar ÷ Kapasiti, dibundarkan (sama seperti lajur "Jumlah Slot Yang Perlu Ditawarkan" anda). Isi lajur <i>Ganti</i> untuk menetapkan sendiri.</p>
+    <div class="scroll"><table id="tblCourses"></table></div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn sm" onclick="addCourse()">+ Tambah kursus</button>
+      <button class="btn sm" onclick="toggle('pasteCourses')">Tampal dari Excel</button>
+    </div>
+    <div id="pasteCourses" style="display:none;margin-top:10px">
+      <p class="muted">Salin baris dari Excel (lajur: KETERANGAN KURSUS | KOMPONEN | KAPASITI | JUMLAH PELAJAR) dan tampal di sini. Kod kursus yang sama akan dikemas kini.</p>
+      <textarea id="taCourses" placeholder="BPMNK1013 - PENGANTAR PENGURUSAN	TPW, EPP	100	545"></textarea>
+      <button class="btn sm pri" onclick="importCourses()">Import</button>
+    </div>
+  </div>
+</section>
+
+<!-- PENSYARAH -->
+<section class="tabpane" id="t-pensyarah">
+  <div class="card">
+    <h2>2. Pensyarah &amp; kuota</h2>
+    <p class="h">Kuota ikut jenis (boleh diganti setiap orang). Klik kod kursus yang boleh diajar. <i>Corak hari</i> kosong = semua dibenarkan. <i>Hari tidak boleh</i> = hari pensyarah tidak boleh mengajar.</p>
+    <div class="scroll"><table id="tblLects"></table></div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn sm" onclick="addLect()">+ Tambah pensyarah</button>
+      <button class="btn sm" onclick="toggle('pasteLects')">Tampal senarai pensyarah</button>
+    </div>
+    <div id="pasteLects" style="display:none;margin-top:10px">
+      <p class="muted">Satu baris setiap pensyarah: <b>Nama ; Jenis (1–5) ; KOD1, KOD2</b> (boleh juga dipisahkan dengan Tab dari Excel). Contoh:</p>
+      <textarea id="taLects" placeholder="Prof. Madya Dr. Ali bin Abu ; 1 ; BPMNK3023, BPMNK3143
+Dr. Siti Aminah ; 2 ; BPMNK1013
+Dr. John Smith ; 4 ; BPMNK3023"></textarea>
+      <button class="btn sm pri" onclick="importLects()">Import</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Jenis pensyarah &amp; kuota (slot/kumpulan semester ini)</h2>
+    <table id="tblTypes"></table>
+  </div>
+</section>
+
+<!-- BILIK -->
+<section class="tabpane" id="t-bilik">
+  <div class="card">
+    <h2>3. Bilik kuliah</h2>
+    <p class="h">Sistem memilih bilik terkecil yang muat kapasiti kursus. Kosongkan senarai jika mahu jana jadual tanpa bilik.</p>
+    <table id="tblRooms"></table>
+    <div class="row" style="margin-top:10px">
+      <button class="btn sm" onclick="addRoom()">+ Tambah bilik</button>
+      <button class="btn sm" onclick="toggle('pasteRooms')">Tampal senarai bilik</button>
+    </div>
+    <div id="pasteRooms" style="display:none;margin-top:10px">
+      <p class="muted">Satu baris: <b>Nama bilik ; Kapasiti</b></p>
+      <textarea id="taRooms" placeholder="DKG 1 ; 100
+BK 3 ; 60"></textarea>
+      <button class="btn sm pri" onclick="importRooms()">Import</button>
+    </div>
+  </div>
+</section>
+
+<!-- KHAS -->
+<section class="tabpane" id="t-khas">
+  <div class="card">
+    <h2>4. Permohonan khas / tetapan tetap</h2>
+    <p class="h">Untuk rayuan atau permintaan khusus. Kelas di sini diletakkan <b>dahulu</b>, tepat pada hari &amp; masa yang ditetapkan. "Bil. slot berturut" &gt; 1 = beberapa kumpulan berturut-turut dalam <b>bilik yang sama</b> (cth. 3 slot 8:30–12:50, Ahad &amp; Rabu).</p>
+    <table id="tblFixed"></table>
+    <div class="row" style="margin-top:10px"><button class="btn sm" onclick="addFixed()">+ Tambah permohonan</button></div>
+  </div>
+</section>
+
+<!-- TETAPAN -->
+<section class="tabpane" id="t-tetapan">
+  <div class="card">
+    <h2>Slot masa</h2>
+    <p class="h">Slot bermula 13:00 atau lewat dikira sesi petang.</p>
+    <table id="tblSlots"></table>
+    <button class="btn sm" style="margin-top:10px" onclick="state.slots.push({label:'17:00–18:20'});save();renderAll()">+ Tambah slot</button>
+  </div>
+  <div class="card">
+    <h2>Corak hari kuliah</h2>
+    <p class="h">Setiap kumpulan bertemu pada hari-hari dalam corak, pada slot yang sama. "Slot sekali duduk" = 2 bermaksud kelas 2 slot berturut (cth. Selasa sahaja).</p>
+    <table id="tblPatterns"></table>
+    <button class="btn sm" style="margin-top:10px" onclick="state.patterns.push({code:'BARU',days:[],len:1});save();renderAll()">+ Tambah corak</button>
+  </div>
+</section>
+
+<!-- JANA -->
+<section class="tabpane" id="t-jana">
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <div><h2>5. Jana jadual</h2><p class="h" style="margin:0">Sistem mencuba banyak susunan dan memilih yang terbaik (paling banyak kumpulan ditempatkan, tiada pertindihan pensyarah/bilik, kumpulan sama kursus disebarkan).</p></div>
+      <div class="row">
+        <label class="muted">Percubaan <input id="runs" type="number" value="300" min="20" max="3000" style="width:80px;padding:5px;border:1px solid var(--line);border-radius:5px"></label>
+        <button class="btn amb" id="btnGen" onclick="generate()">▶ Jana Jadual</button>
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px"><div class="prog"><div id="progBar"></div></div><span class="muted" id="progTxt"></span></div>
+  </div>
+  <div id="precheck"></div>
+  <div id="results"></div>
+</section>
+</main>
+
+<div class="modal" id="io"><div class="box">
+  <h2 style="margin-top:0">Simpan / Muat data</h2>
+  <p class="muted">Data disimpan automatik dalam pelayar ini sahaja. Untuk simpanan kekal atau berkongsi, salin JSON di bawah dan simpan dalam fail. Untuk memuat, tampal JSON atau pilih fail.</p>
+  <textarea id="taIO" style="min-height:200px"></textarea>
+  <div class="row" style="margin-top:10px">
+    <button class="btn sm" onclick="copyText(JSON.stringify(stripResult(),null,1),'JSON disalin')">Salin JSON</button>
+    <input type="file" id="fileIO" accept=".json,.txt" onchange="loadFile(this)">
+    <button class="btn sm pri" onclick="loadJSON()">Muat dari teks</button>
+    <button class="btn sm" onclick="closeIO()">Tutup</button>
+  </div>
+</div></div>
+<div id="toast"></div>
+
+<script>
+const DAYS=['Ahad','Isnin','Selasa','Rabu','Khamis'];
+const DEFAULT={
+  types:[
+    {id:1,name:'Profesor / Prof. Madya / Pensyarah Kanan',quota:2},
+    {id:2,name:'Pensyarah memegang jawatan (Pengerusi Program, Pengarah, Dekan HEP)',quota:1},
+    {id:3,name:'Timbalan Dekan',quota:1},
+    {id:4,name:'Pensyarah Antarabangsa / Pelawat',quota:3},
+    {id:5,name:'Pensyarah Kontrak Ilmu & Budi',quota:2}
+  ],
+  slots:[{label:'08:30–09:50'},{label:'10:00–11:20'},{label:'11:30–12:50'},{label:'14:00–15:20'},{label:'15:30–16:50'}],
+  patterns:[{code:'AR',days:[0,3],len:1},{code:'IK',days:[1,4],len:1},{code:'S',days:[2],len:2}],
+  courses:[
+    {code:'BPMNK1013',name:'Pengantar Pengurusan',comp:'TPW, EPP',cap:100,students:545,ovr:''},
+    {code:'BPMNK2023',name:'Gelagat Organisasi',comp:'TPW, EPP',cap:70,students:27,ovr:''},
+    {code:'BPMNK2033',name:'Data Analitik dan Kecerdasan Perniagaan',comp:'TPW, EPP',cap:70,students:72,ovr:''},
+    {code:'BPMNK3023',name:'Pengurusan Strategik',comp:'TPW',cap:60,students:1303,ovr:''},
+    {code:'BPMNK3103',name:'Seminar Pemikiran Pengurusan',comp:'TPW',cap:60,students:316,ovr:''},
+    {code:'BPMNK3123',name:'Etika Pengurusan',comp:'TPW, EPP',cap:60,students:768,ovr:''},
+    {code:'BPMNK3143',name:'Kaedah Penyelidikan',comp:'TPW',cap:60,students:787,ovr:''},
+    {code:'BPINK3053',name:'Sistem Maklumat Pengurusan',comp:'TPW, EPP',cap:50,students:59,ovr:''}
+  ],
+  lects:[
+    {id:1,name:'Contoh: Pensyarah A (ganti nama)',type:1,qovr:'',courses:['BPMNK3023','BPMNK3143'],patterns:[],time:'all',blocked:[]},
+    {id:2,name:'Contoh: Pensyarah B (ganti nama)',type:4,qovr:'',courses:['BPMNK1013'],patterns:[],time:'all',blocked:[]}
+  ],
+  rooms:[{name:'Bilik 1',cap:100},{name:'Bilik 2',cap:100},{name:'Bilik 3',cap:70},{name:'Bilik 4',cap:70},{name:'Bilik 5',cap:60},{name:'Bilik 6',cap:60},{name:'Bilik 7',cap:60},{name:'Bilik 8',cap:60}],
+  fixed:[],
+  nextId:3,
+  result:null
+};
+let state; let tab='kursus';
+const TABS=[['kursus','1 · Kursus'],['pensyarah','2 · Pensyarah'],['bilik','3 · Bilik'],['khas','4 · Permohonan Khas'],['jana','5 · Jana & Jadual'],['tetapan','Tetapan Masa']];
+
+function load(){try{const s=localStorage.getItem('bbaSched_A262');if(s){state=JSON.parse(s);return}}catch(e){} state=JSON.parse(JSON.stringify(DEFAULT))}
+function save(){try{localStorage.setItem('bbaSched_A262',JSON.stringify(state))}catch(e){}}
+function stripResult(){const c=JSON.parse(JSON.stringify(state));delete c.result;return c}
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
+function toggle(id){const e=document.getElementById(id);e.style.display=e.style.display==='none'?'block':'none'}
+async function copyText(txt,msg){try{await navigator.clipboard.writeText(txt);toast(msg||'Disalin')}catch(e){document.getElementById('taIO').value=txt;openIO();toast('Salin secara manual dari kotak teks')}}
+
+/* helpers */
+const need=c=>c.ovr!==''&&c.ovr!=null&&!isNaN(+c.ovr)?Math.max(0,parseInt(c.ovr)):(c.cap>0?Math.round(c.students/c.cap):0);
+const quotaOf=l=>l.qovr!==''&&l.qovr!=null&&!isNaN(+l.qovr)?parseInt(l.qovr):((state.types.find(t=>t.id==l.type)||{quota:0}).quota);
+const sessOf=i=>{const m=(state.slots[i]?.label||'').match(/(\d{1,2})[:.](\d{2})/);return m&&+m[1]>=13?'pm':'am'};
+const lectById=id=>state.lects.find(l=>l.id==id);
+function slotRange(s,len){const a=(state.slots[s]?.label||'').split(/[–-]/)[0].trim();const b=(state.slots[s+len-1]?.label||'').split(/[–-]/).pop().trim();return a+'–'+b}
+const patDays=p=>p.days.map(d=>DAYS[d]).join(' & ');
+
+/* NAV */
+function renderNav(){document.getElementById('nav').innerHTML=TABS.map(([k,l])=>`<button class="${k===tab?'on':''}" onclick="go('${k}')">${l}</button>`).join('');document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('on',p.id==='t-'+tab))}
+function go(k){tab=k;renderNav();if(k==='jana')renderJana()}
+
+/* COURSES */
+function renderCourses(){
+  let h='<tr><th>Kod</th><th>Nama kursus</th><th>Komponen</th><th>Kapasiti</th><th>Jumlah pelajar</th><th>Kumpulan (auto)</th><th>Ganti</th><th></th></tr>';
+  state.courses.forEach((c,i)=>{const n=need(c);const auto=c.cap>0?Math.round(c.students/c.cap):0;
+    h+=`<tr><td><input value="${esc(c.code)}" onchange="setC(${i},'code',this.value.trim().toUpperCase())" style="width:110px"></td>
+    <td><input value="${esc(c.name)}" onchange="setC(${i},'name',this.value)"></td>
+    <td><input value="${esc(c.comp)}" onchange="setC(${i},'comp',this.value)" style="width:90px"></td>
+    <td><input class="num" type="number" value="${c.cap}" onchange="setC(${i},'cap',+this.value)"></td>
+    <td><input class="num" type="number" value="${c.students}" onchange="setC(${i},'students',+this.value)"></td>
+    <td><b>${auto}</b>${auto===0&&c.students>0?' <span class="tag warn">pelajar tanpa kumpulan</span>':''}</td>
+    <td><input class="num" type="number" placeholder="–" value="${esc(c.ovr)}" onchange="setC(${i},'ovr',this.value)"></td>
+    <td><button class="btn sm del" onclick="state.courses.splice(${i},1);save();renderAll()">✕</button></td></tr>`});
+  const tot=state.courses.reduce((a,c)=>a+need(c),0);
+  h+=`<tr><td colspan="5" style="text-align:right"><b>Jumlah kumpulan diperlukan</b></td><td colspan="3"><b>${tot}</b></td></tr>`;
+  document.getElementById('tblCourses').innerHTML=h;
+}
+function setC(i,k,v){const old=state.courses[i].code;state.courses[i][k]=v;if(k==='code'){state.lects.forEach(l=>l.courses=l.courses.map(x=>x===old?v:x));state.fixed.forEach(f=>{if(f.course===old)f.course=v})}save();renderAll()}
+function addCourse(){state.courses.push({code:'KOD'+(state.courses.length+1),name:'',comp:'TPW',cap:60,students:0,ovr:''});save();renderAll()}
+function importCourses(){
+  const lines=document.getElementById('taCourses').value.split('\n').map(x=>x.trim()).filter(Boolean);let n=0;
+  lines.forEach(L=>{const p=L.split('\t').map(x=>x.replace(/^⊟|^⊞/,'').trim());let first=p[0];const m=first.match(/^([A-Z]{3,6}\d{3,5})\s*[-–]\s*(.*)$/i);if(!m)return;
+    const code=m[1].toUpperCase(),name=m[2].trim();const comp=p[1]||'';const cap=parseInt(p[2])||60;const st=parseInt(p[3])||0;
+    const ex=state.courses.find(c=>c.code===code);if(ex){Object.assign(ex,{name,comp,cap,students:st})}else state.courses.push({code,name,comp,cap,students:st,ovr:''});n++});
+  save();renderAll();toast(n+' kursus diimport');document.getElementById('taCourses').value='';
+}
+
+/* LECTURERS */
+function renderTypes(){
+  let h='<tr><th>Jenis</th><th>Keterangan</th><th>Kuota</th></tr>';
+  state.types.forEach((t,i)=>h+=`<tr><td>Jenis ${t.id}</td><td><input value="${esc(t.name)}" onchange="state.types[${i}].name=this.value;save();renderAll()"></td><td><input class="num" type="number" value="${t.quota}" onchange="state.types[${i}].quota=+this.value;save();renderAll()"></td></tr>`);
+  document.getElementById('tblTypes').innerHTML=h;
+}
+function renderLects(){
+  let h='<tr><th style="min-width:190px">Nama</th><th>Jenis</th><th>Kuota</th><th>Kursus boleh diajar</th><th>Corak hari</th><th>Masa</th><th>Hari tidak boleh</th><th></th></tr>';
+  state.lects.forEach((l,i)=>{
+    h+=`<tr><td><input value="${esc(l.name)}" onchange="state.lects[${i}].name=this.value;save();renderAll()"></td>
+    <td><select onchange="state.lects[${i}].type=+this.value;save();renderAll()" style="width:150px">${state.types.map(t=>`<option value="${t.id}" ${t.id==l.type?'selected':''}>${t.id} · ${esc(t.name)}</option>`).join('')}</select></td>
+    <td><input class="num" type="number" style="width:60px" placeholder="${quotaOf({...l,qovr:''})}" value="${esc(l.qovr)}" onchange="state.lects[${i}].qovr=this.value;save();renderAll()"></td>
+    <td><div class="chips">${state.courses.map(c=>`<span class="chip ${l.courses.includes(c.code)?'on':''}" title="${esc(c.name)}" onclick="tog(${i},'courses','${esc(c.code)}')">${esc(c.code)}</span>`).join('')}</div></td>
+    <td><div class="chips">${state.patterns.map(p=>`<span class="chip ${l.patterns.includes(p.code)?'on':''}" onclick="tog(${i},'patterns','${esc(p.code)}')">${esc(p.code)}</span>`).join('')}</div></td>
+    <td><select onchange="state.lects[${i}].time=this.value;save()" style="width:95px"><option value="all" ${l.time==='all'?'selected':''}>Bebas</option><option value="am" ${l.time==='am'?'selected':''}>Pagi sahaja</option><option value="pm" ${l.time==='pm'?'selected':''}>Petang sahaja</option></select></td>
+    <td><div class="chips">${DAYS.map((d,di)=>`<span class="chip off-red ${l.blocked.includes(di)?'on':''}" onclick="tog(${i},'blocked',${di})">${d.slice(0,3)}</span>`).join('')}</div></td>
+    <td><button class="btn sm del" onclick="delLect(${i})">✕</button></td></tr>`});
+  const totQ=state.lects.reduce((a,l)=>a+quotaOf(l),0),totN=state.courses.reduce((a,c)=>a+need(c),0);
+  h+=`<tr><td colspan="2" style="text-align:right"><b>Jumlah kuota</b></td><td><b class="${totQ>=totN?'ok':'bad'}">${totQ}</b></td><td colspan="5" class="muted">Diperlukan: ${totN} kumpulan · ${state.lects.length} pensyarah</td></tr>`;
+  document.getElementById('tblLects').innerHTML=h;
+}
+function tog(i,k,v){const a=state.lects[i][k];const j=a.indexOf(v);j>=0?a.splice(j,1):a.push(v);save();renderAll()}
+function addLect(){state.lects.push({id:state.nextId++,name:'',type:1,qovr:'',courses:[],patterns:[],time:'all',blocked:[]});save();renderAll()}
+function delLect(i){const id=state.lects[i].id;state.lects.splice(i,1);state.fixed=state.fixed.filter(f=>f.lec!=id);save();renderAll()}
+function importLects(){
+  const lines=document.getElementById('taLects').value.split('\n').map(x=>x.trim()).filter(Boolean);let n=0;
+  lines.forEach(L=>{const p=L.split(/[;\t]/).map(x=>x.trim());if(!p[0])return;const type=parseInt(p[1])||1;
+    const cs=(p[2]||'').split(/[,\s]+/).map(x=>x.toUpperCase()).filter(Boolean);
+    const ex=state.lects.find(l=>l.name.toLowerCase()===p[0].toLowerCase());
+    if(ex){ex.type=type;if(cs.length)ex.courses=cs}else state.lects.push({id:state.nextId++,name:p[0],type,qovr:'',courses:cs,patterns:[],time:'all',blocked:[]});n++});
+  state.lects=state.lects.filter(l=>!l.name.startsWith('Contoh:')||n===0);
+  save();renderAll();toast(n+' pensyarah diimport');document.getElementById('taLects').value='';
+}
+
+/* ROOMS */
+function renderRooms(){
+  let h='<tr><th>Nama bilik</th><th>Kapasiti</th><th></th></tr>';
+  state.rooms.forEach((r,i)=>h+=`<tr><td><input value="${esc(r.name)}" onchange="state.rooms[${i}].name=this.value;save();renderAll()"></td><td><input class="num" type="number" value="${r.cap}" onchange="state.rooms[${i}].cap=+this.value;save();renderAll()"></td><td><button class="btn sm del" onclick="state.rooms.splice(${i},1);save();renderAll()">✕</button></td></tr>`);
+  document.getElementById('tblRooms').innerHTML=h;
+}
+function addRoom(){state.rooms.push({name:'Bilik '+(state.rooms.length+1),cap:60});save();renderAll()}
+function importRooms(){const lines=document.getElementById('taRooms').value.split('\n').map(x=>x.trim()).filter(Boolean);let n=0;
+  lines.forEach(L=>{const p=L.split(/[;\t]/).map(x=>x.trim());if(!p[0])return;const ex=state.rooms.find(r=>r.name===p[0]);const cap=parseInt(p[1])||60;ex?ex.cap=cap:state.rooms.push({name:p[0],cap});n++});
+  save();renderAll();toast(n+' bilik diimport');document.getElementById('taRooms').value=''}
+
+/* FIXED */
+function renderFixed(){
+  let h='<tr><th>Pensyarah</th><th>Kursus</th><th>Corak hari</th><th>Slot mula</th><th>Bil. slot berturut</th><th>Bilik</th><th></th></tr>';
+  state.fixed.forEach((f,i)=>{
+    h+=`<tr><td><select onchange="setF(${i},'lec',+this.value)"><option value="">– pilih –</option>${state.lects.map(l=>`<option value="${l.id}" ${l.id==f.lec?'selected':''}>${esc(l.name)}</option>`).join('')}</select></td>
+    <td><select onchange="setF(${i},'course',this.value)">${state.courses.map(c=>`<option ${c.code===f.course?'selected':''}>${esc(c.code)}</option>`).join('')}</select></td>
+    <td><select onchange="setF(${i},'pat',this.value)">${state.patterns.map(p=>`<option value="${esc(p.code)}" ${p.code===f.pat?'selected':''}>${esc(p.code)} (${patDays(p)})</option>`).join('')}</select></td>
+    <td><select onchange="setF(${i},'start',+this.value)">${state.slots.map((s,si)=>`<option value="${si}" ${si==f.start?'selected':''}>${esc(s.label)}</option>`).join('')}</select></td>
+    <td><input class="num" type="number" min="1" max="6" value="${f.count}" onchange="setF(${i},'count',Math.max(1,+this.value))"></td>
+    <td><select onchange="setF(${i},'room',this.value)"><option value="">Auto (bilik sama)</option>${state.rooms.map(r=>`<option ${r.name===f.room?'selected':''}>${esc(r.name)}</option>`).join('')}</select></td>
+    <td><button class="btn sm del" onclick="state.fixed.splice(${i},1);save();renderAll()">✕</button></td></tr>`});
+  if(!state.fixed.length)h+='<tr><td colspan="7" class="muted">Tiada permohonan khas.</td></tr>';
+  document.getElementById('tblFixed').innerHTML=h;
+}
+function setF(i,k,v){state.fixed[i][k]=v;save();renderAll()}
+function addFixed(){state.fixed.push({lec:'',course:state.courses[0]?.code||'',pat:state.patterns[0]?.code||'',start:0,count:1,room:''});save();renderAll()}
+
+/* SETTINGS */
+function renderSettings(){
+  document.getElementById('tblSlots').innerHTML='<tr><th>#</th><th>Masa</th><th>Sesi</th><th></th></tr>'+state.slots.map((s,i)=>`<tr><td>${i+1}</td><td><input value="${esc(s.label)}" onchange="state.slots[${i}].label=this.value;save();renderAll()"></td><td>${sessOf(i)==='am'?'Pagi':'Petang'}</td><td><button class="btn sm del" onclick="state.slots.splice(${i},1);save();renderAll()">✕</button></td></tr>`).join('');
+  document.getElementById('tblPatterns').innerHTML='<tr><th>Kod</th><th>Hari</th><th>Slot sekali duduk</th><th></th></tr>'+state.patterns.map((p,i)=>`<tr><td><input value="${esc(p.code)}" style="width:80px" onchange="renamePat(${i},this.value.trim())"></td><td><div class="chips">${DAYS.map((d,di)=>`<span class="chip ${p.days.includes(di)?'on':''}" onclick="togPD(${i},${di})">${d}</span>`).join('')}</div></td><td><select onchange="state.patterns[${i}].len=+this.value;save();renderAll()"><option ${p.len==1?'selected':''}>1</option><option ${p.len==2?'selected':''}>2</option><option ${p.len==3?'selected':''}>3</option></select></td><td><button class="btn sm del" onclick="state.patterns.splice(${i},1);save();renderAll()">✕</button></td></tr>`).join('');
+}
+function togPD(i,d){const a=state.patterns[i].days;const j=a.indexOf(d);j>=0?a.splice(j,1):a.push(d);a.sort();save();renderAll()}
+function renamePat(i,v){const o=state.patterns[i].code;state.patterns[i].code=v;state.lects.forEach(l=>l.patterns=l.patterns.map(x=>x===o?v:x));state.fixed.forEach(f=>{if(f.pat===o)f.pat=v});save();renderAll()}
+
+/* ================= SCHEDULER ================= */
+function buildPositions(){
+  const pos=[];
+  state.patterns.forEach(p=>{if(!p.days.length)return;const len=Math.max(1,+p.len||1);
+    for(let s=0;s+len<=state.slots.length;s++){let ok=true;for(let k=1;k<len;k++)if(sessOf(s+k)!==sessOf(s))ok=false;if(!ok)continue;
+      const cells=[];p.days.forEach(d=>{for(let k=0;k<len;k++)cells.push(d+'-'+(s+k))});
+      pos.push({pat:p.code,s,len,cells,days:p.days,sess:sessOf(s)})}});
+  return pos;
+}
+function lectAllows(l,ps){if(l.patterns.length&&!l.patterns.includes(ps.pat))return false;if(l.time!=='all'&&ps.sess!==l.time)return false;if(ps.days.some(d=>l.blocked.includes(d)))return false;return true}
+
+function runOnce(P,rnd){
+  const lecBusy={},roomBusy={},used={},teach={},dayLoad={},lecRoomAt={},posCount={},coursePos={};
+  const A=[],U=[],W=[];let cost=0;
+  state.lects.forEach(l=>{lecBusy[l.id]=new Set();used[l.id]=0;teach[l.id]=new Set()});
+  state.rooms.forEach(r=>roomBusy[r.name]=new Set());
+  const remaining={};state.courses.forEach(c=>remaining[c.code]=need(c));
+  const courseOf=code=>state.courses.find(c=>c.code===code);
+  function commit(l,c,ps,room,fixed){
+    ps.cells.forEach(x=>{lecBusy[l.id].add(x);if(room)roomBusy[room].add(x);lecRoomAt[l.id+'|'+x]=room;const d=x.split('-')[0];dayLoad[l.id+'|'+d]=(dayLoad[l.id+'|'+d]||0)+1});
+    used[l.id]++;teach[l.id].add(c.code);const k=ps.pat+'|'+ps.s;posCount[k]=(posCount[k]||0)+1;coursePos[c.code+'|'+k]=(coursePos[c.code+'|'+k]||0)+1;
+    remaining[c.code]--;A.push({course:c.code,lec:l.id,pat:ps.pat,s:ps.s,len:ps.len,days:ps.days,room,fixed});
+  }
+  const roomFree=(r,cells)=>cells.every(x=>!roomBusy[r].has(x));
+  const hasRooms=state.rooms.length>0;
+  // 1. fixed requests
+  state.fixed.forEach((f,fi)=>{
+    const l=lectById(f.lec),c=courseOf(f.course);if(!l||!c){W.push(`Permohonan khas #${fi+1}: pensyarah/kursus tidak lengkap.`);return}
+    const p=state.patterns.find(x=>x.code===f.pat);if(!p){W.push(`Permohonan khas #${fi+1}: corak hari tidak wujud.`);return}
+    const blocks=[];for(let i=0;i<f.count;i++){const ps=P.find(x=>x.pat===f.pat&&x.s===f.start+i*(p.len||1));if(!ps){W.push(`Permohonan khas ${esc(l.name)} (${c.code}): slot ke-${i+1} melebihi slot masa yang ada.`);return}blocks.push(ps)}
+    if(blocks.some(ps=>ps.cells.some(x=>lecBusy[l.id].has(x)))){W.push(`Permohonan khas ${esc(l.name)}: bertindih dengan permohonan lain.`);return}
+    let room='';
+    if(hasRooms){const allCells=blocks.flatMap(b=>b.cells);
+      if(f.room){if(!roomBusy[f.room]||!roomFree(f.room,allCells)){W.push(`Permohonan khas ${esc(l.name)}: bilik ${esc(f.room)} tidak tersedia.`);return}room=f.room}
+      else{const cand=state.rooms.filter(r=>roomFree(r.name,allCells)).sort((a,b)=>(a.cap>=c.cap?0:1e4)+a.cap-((b.cap>=c.cap?0:1e4)+b.cap));if(!cand.length){W.push(`Permohonan khas ${esc(l.name)}: tiada bilik sama yang kosong untuk semua slot.`);return}room=cand[0].name;if(cand[0].cap<c.cap)W.push(`Permohonan khas ${esc(l.name)}: bilik ${esc(room)} (${cand[0].cap}) lebih kecil daripada kapasiti ${c.cap}.`)}}
+    blocks.forEach(ps=>commit(l,c,ps,room,true));
+    if(used[l.id]>quotaOf(l))W.push(`${esc(l.name)} melebihi kuota (${used[l.id]}/${quotaOf(l)}) kerana permohonan khas.`);
+    if(remaining[c.code]<0)W.push(`${c.code}: permohonan khas melebihi bilangan kumpulan diperlukan.`);
+  });
+  // 2. remaining sections
+  const elig={};state.courses.forEach(c=>elig[c.code]=state.lects.filter(l=>l.courses.includes(c.code)).length);
+  const secs=[];state.courses.forEach(c=>{for(let i=0;i<remaining[c.code];i++)secs.push({c,key:elig[c.code]+rnd()*1.5})});
+  secs.sort((a,b)=>a.key-b.key);
+  for(const {c} of secs){
+    let best=null,bc=Infinity;
+    for(const l of state.lects){
+      if(!l.courses.includes(c.code))continue;const q=quotaOf(l);if(used[l.id]>=q)continue;
+      for(const ps of P){
+        if(!lectAllows(l,ps))continue;
+        if(ps.cells.some(x=>lecBusy[l.id].has(x)))continue;
+        let sc=0;const k=ps.pat+'|'+ps.s;
+        sc+=3*(coursePos[c.code+'|'+k]||0);         // spread same course
+        sc+=0.35*(posCount[k]||0);                   // spread overall
+        if(teach[l.id].has(c.code))sc-=2;else if(teach[l.id].size)sc+=2; // fewer preps
+        sc-=1.5*((q-used[l.id])/Math.max(1,q));      // balance load
+        let adj=0;for(const x of ps.cells){const [d,s]=x.split('-').map(Number);if(lecBusy[l.id].has(d+'-'+(s-1))||lecBusy[l.id].has(d+'-'+(s+1)))adj++;const dl=(dayLoad[l.id+'|'+d]||0)+1;if(dl>3)sc+=4}
+        sc-=0.3*adj;
+        sc+=rnd()*0.9;
+        // room
+        let room='',rpen=0;
+        if(hasRooms){let rb=null,rbs=Infinity;
+          for(const r of state.rooms){if(!roomFree(r.name,ps.cells))continue;let rs=r.cap>=c.cap?(r.cap-c.cap)/50:50+(c.cap-r.cap);
+            for(const x of ps.cells){const [d,s]=x.split('-').map(Number);if(lecRoomAt[l.id+'|'+d+'-'+(s-1)]===r.name||lecRoomAt[l.id+'|'+d+'-'+(s+1)]===r.name)rs-=0.6}
+            if(rs<rbs){rbs=rs;rb=r.name}}
+          if(!rb)continue;room=rb;rpen=rbs}
+        sc+=rpen;
+        if(sc<bc){bc=sc;best={l,ps,room}}
+      }
+    }
+    if(best){commit(best.l,c,best.ps,best.room,false);cost+=bc;const r=state.rooms.find(x=>x.name===best.room);if(r&&r.cap<c.cap)cost+=20}
+    else U.push(c.code);
+  }
+  return {A,U,W,cost:U.length*1000+cost};
+}
+
+let genBusy=false;
+function generate(){
+  if(genBusy)return;const P=buildPositions();
+  if(!P.length){toast('Tiada corak hari/slot yang sah');return}
+  genBusy=true;const N=Math.max(20,Math.min(3000,+document.getElementById('runs').value||300));
+  let best=null,i=0;const bar=document.getElementById('progBar'),txt=document.getElementById('progTxt');
+  let seed=Date.now()%2147483647;const rnd=()=>(seed=seed*16807%2147483647)/2147483647;
+  (function chunk(){
+    const end=Math.min(N,i+15);for(;i<end;i++){const r=runOnce(P,rnd);if(!best||r.cost<best.cost)best=r}
+    bar.style.width=(i/N*100)+'%';txt.textContent=`${i}/${N} percubaan · terbaik: ${best.A.length} ditempatkan, ${best.U.length} tidak`;
+    if(i<N)setTimeout(chunk,0);else{genBusy=false;finalize(best)}
+  })();
+}
+function letters(n){let s='';n++;while(n>0){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26)}return s}
+function finalize(r){
+  const byC={};r.A.forEach(a=>(byC[a.course]=byC[a.course]||[]).push(a));
+  const pOrder=c=>state.patterns.findIndex(p=>p.code===c);
+  Object.values(byC).forEach(list=>{list.sort((a,b)=>(b.fixed-a.fixed)||(pOrder(a.pat)-pOrder(b.pat))||(a.s-b.s));list.forEach((a,i)=>a.grp=letters(i))});
+  state.result={A:r.A,U:r.U,W:r.W,at:new Date().toLocaleString('ms-MY')};save();renderJana();toast('Jadual dijana');
+}
+
+/* ================= RESULTS ================= */
+let view='kursus',filt='';
+function renderJana(){
+  // precheck
+  const rows=state.courses.map(c=>{const n=need(c);const sup=state.lects.filter(l=>l.courses.includes(c.code)).reduce((a,l)=>a+quotaOf(l),0);return {c,n,sup,ok:sup>=n}});
+  const totN=rows.reduce((a,r)=>a+r.n,0),totQ=state.lects.reduce((a,l)=>a+quotaOf(l),0);
+  const P=buildPositions();const roomCap=state.rooms.length?state.rooms.length*state.slots.length*DAYS.length:Infinity;
+  const meet=state.courses.reduce((a,c)=>a+need(c)*2,0);
+  let h=`<div class="card"><h2>Semakan sebelum jana</h2><p class="h">Kuota pensyarah yang boleh mengajar setiap kursus berbanding kumpulan diperlukan.</p>
+  <div class="kpis"><div class="kpi"><div class="v">${totN}</div><div class="l">Kumpulan diperlukan</div></div>
+  <div class="kpi"><div class="v ${totQ>=totN?'ok':'bad'}">${totQ}</div><div class="l">Jumlah kuota pensyarah</div></div>
+  <div class="kpi"><div class="v">${state.lects.length}</div><div class="l">Pensyarah</div></div>
+  <div class="kpi"><div class="v">${P.length}</div><div class="l">Kombinasi hari × slot</div></div></div>
+  <table><tr><th>Kursus</th><th>Diperlukan</th><th>Kuota pensyarah layak</th><th>Status</th></tr>
+  ${rows.map(r=>`<tr><td><b>${esc(r.c.code)}</b> ${esc(r.c.name)}</td><td>${r.n}</td><td>${r.sup}</td><td>${r.ok?'<span class="tag ok">Cukup</span>':`<span class="tag bad">Kurang ${r.n-r.sup}</span>`}</td></tr>`).join('')}</table>
+  <p class="muted" style="margin-bottom:0">Nota: kuota seorang pensyarah dikongsi antara semua kursus yang ditanda, jadi "Cukup" di sini belum menjamin semua kumpulan dapat ditempatkan.${meet>roomCap?' <b class="bad">Bilik tidak mencukupi untuk semua pertemuan.</b>':''}</p></div>`;
+  document.getElementById('precheck').innerHTML=h;
+  const R=state.result;if(!R){document.getElementById('results').innerHTML='';return}
+  const valid=R.A.filter(a=>state.courses.some(c=>c.code===a.course));
+  let o=`<div class="card"><div class="row" style="justify-content:space-between"><div><h2>Keputusan jadual</h2><p class="h" style="margin:0">Dijana ${esc(R.at)} · Jika anda ubah data, tekan Jana semula.</p></div>
+  <div class="row noprint"><button class="btn sm" onclick="copyCSV()">Salin CSV (untuk Excel)</button></div></div>
+  <div class="kpis" style="margin-top:12px"><div class="kpi"><div class="v ok">${valid.length}</div><div class="l">Kumpulan ditempatkan</div></div>
+  <div class="kpi"><div class="v ${R.U.length?'bad':'ok'}">${R.U.length}</div><div class="l">Tidak dapat ditempatkan</div></div>
+  <div class="kpi"><div class="v">${valid.filter(a=>a.fixed).length}</div><div class="l">Dari permohonan khas</div></div></div>`;
+  const unc={};R.U.forEach(c=>unc[c]=(unc[c]||0)+1);
+  const warns=[...R.W,...Object.entries(unc).map(([c,n])=>`${c}: ${n} kumpulan tidak dapat ditempatkan — tambah pensyarah yang boleh mengajar, naikkan kuota, atau longgarkan sekatan hari/masa.`)];
+  valid.forEach(a=>{const r=state.rooms.find(x=>x.name===a.room),c=state.courses.find(x=>x.code===a.course);if(r&&c&&r.cap<c.cap)warns.push(`${a.course}-${a.grp}: bilik ${esc(r.name)} (${r.cap}) lebih kecil daripada kapasiti ${c.cap}.`)});
+  if(warns.length)o+=`<div style="background:var(--red-l);border-radius:8px;padding:10px 14px;margin-bottom:12px"><b>Perhatian</b><ul class="warnlist">${warns.map(w=>`<li>${w}</li>`).join('')}</ul></div>`;
+  o+=`<div class="row noprint" style="margin-bottom:12px">${[['kursus','Ikut kursus'],['grid','Jadual mingguan'],['pensyarah','Ikut pensyarah'],['bilik','Ikut bilik']].map(([k,l])=>`<button class="btn sm ${view===k?'pri':''}" onclick="view='${k}';renderJana()">${l}</button>`).join('')}</div>`;
+  const L=id=>lectById(id)?.name||'(dipadam)';
+  if(view==='kursus'){
+    o+='<div class="scroll"><table><tr><th>Kod</th><th>Kursus</th><th>Kump.</th><th>Pensyarah</th><th>Hari</th><th>Masa</th><th>Bilik</th></tr>';
+    state.courses.forEach(c=>{valid.filter(a=>a.course===c.code).sort((a,b)=>a.grp.length-b.grp.length||a.grp.localeCompare(b.grp)).forEach(a=>{
+      o+=`<tr><td>${esc(a.course)}</td><td>${esc(c.name)}</td><td><b>${a.grp}</b>${a.fixed?' <span class="tag warn">khas</span>':''}</td><td>${esc(L(a.lec))}</td><td>${a.days.map(d=>DAYS[d]).join(' & ')}</td><td>${slotRange(a.s,a.len)}</td><td>${esc(a.room||'–')}</td></tr>`})});
+    o+='</table></div>';
+  }else if(view==='grid'){
+    o+=`<div class="row noprint" style="margin-bottom:8px"><span class="muted">Tapis:</span><select id="gf" onchange="filt=this.value;renderJana()" style="padding:5px;border-radius:5px;border:1px solid var(--line)"><option value="">Semua</option>
+      <optgroup label="Kursus">${state.courses.map(c=>`<option value="c:${esc(c.code)}" ${filt==='c:'+c.code?'selected':''}>${esc(c.code)}</option>`).join('')}</optgroup>
+      <optgroup label="Pensyarah">${state.lects.map(l=>`<option value="l:${l.id}" ${filt==='l:'+l.id?'selected':''}>${esc(l.name)}</option>`).join('')}</optgroup>
+      <optgroup label="Bilik">${state.rooms.map(r=>`<option value="r:${esc(r.name)}" ${filt==='r:'+r.name?'selected':''}>${esc(r.name)}</option>`).join('')}</optgroup></select></div>`;
+    const F=valid.filter(a=>!filt||(filt.startsWith('c:')&&a.course===filt.slice(2))||(filt.startsWith('l:')&&a.lec==filt.slice(2))||(filt.startsWith('r:')&&a.room===filt.slice(2)));
+    o+='<div class="grid"><table><tr><th>Masa</th>'+DAYS.map(d=>`<th>${d}</th>`).join('')+'</tr>';
+    state.slots.forEach((s,si)=>{o+=`<tr><td class="slot">${esc(s.label)}</td>`;
+      DAYS.forEach((d,di)=>{const here=F.filter(a=>a.days.includes(di)&&si>=a.s&&si<a.s+a.len);
+        o+='<td>'+here.map(a=>`<div class="cls ${a.fixed?'fixed':''}"><b>${esc(a.course)}-${a.grp}</b> <span class="m">${esc(a.room||'')}</span><br>${esc(L(a.lec))}</div>`).join('')+'</td>'});o+='</tr>'});
+    o+='</table></div>';
+  }else if(view==='pensyarah'){
+    o+='<div class="scroll"><table><tr><th>Pensyarah</th><th>Jenis</th><th>Diberi / Kuota</th><th>Kelas</th></tr>';
+    state.lects.forEach(l=>{const mine=valid.filter(a=>a.lec==l.id);const q=quotaOf(l);
+      o+=`<tr><td>${esc(l.name)}</td><td>${l.type}</td><td><span class="tag ${mine.length>q?'bad':mine.length<q?'warn':'ok'}">${mine.length} / ${q}</span></td><td>${mine.map(a=>`${esc(a.course)}-${a.grp} · ${a.days.map(d=>DAYS[d].slice(0,3)).join('/')} ${slotRange(a.s,a.len)} · ${esc(a.room||'')}`).join('<br>')||'<span class="muted">–</span>'}</td></tr>`});
+    o+='</table></div>';
+  }else{
+    o+='<div class="scroll"><table><tr><th>Bilik</th><th>Kapasiti</th><th>Penggunaan</th></tr>';
+    state.rooms.forEach(r=>{const mine=valid.filter(a=>a.room===r.name).sort((a,b)=>a.days[0]-b.days[0]||a.s-b.s);
+      o+=`<tr><td>${esc(r.name)}</td><td>${r.cap}</td><td>${mine.map(a=>`${a.days.map(d=>DAYS[d].slice(0,3)).join('/')} ${slotRange(a.s,a.len)} — ${esc(a.course)}-${a.grp} (${esc(L(a.lec))})`).join('<br>')||'<span class="muted">Kosong</span>'}</td></tr>`});
+    o+='</table></div>';
+  }
+  o+='</div>';document.getElementById('results').innerHTML=o;
+}
+function copyCSV(){const R=state.result;if(!R)return;const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+  const lines=[['Kod','Kursus','Kumpulan','Pensyarah','Hari','Masa','Bilik','Permohonan khas'].map(q).join(',')];
+  state.courses.forEach(c=>R.A.filter(a=>a.course===c.code).sort((a,b)=>a.grp.length-b.grp.length||a.grp.localeCompare(b.grp)).forEach(a=>lines.push([a.course,c.name,a.grp,lectById(a.lec)?.name||'',a.days.map(d=>DAYS[d]).join(' & '),slotRange(a.s,a.len),a.room||'',a.fixed?'Ya':''].map(q).join(','))));
+  copyText(lines.join('\n'),'CSV disalin — tampal dalam Excel')}
+
+/* IO */
+function openIO(){document.getElementById('io').classList.add('on')}
+function closeIO(){document.getElementById('io').classList.remove('on')}
+function applyLoaded(o){if(!o||!o.courses||!o.lects)throw 0;state=Object.assign(JSON.parse(JSON.stringify(DEFAULT)),o);state.result=null;save();renderAll();closeIO();toast('Data dimuat')}
+function loadJSON(){try{applyLoaded(JSON.parse(document.getElementById('taIO').value))}catch(e){toast('JSON tidak sah')}}
+function loadFile(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{applyLoaded(JSON.parse(r.result))}catch(e){toast('Fail tidak sah')}};r.readAsText(f)}
+function resetAll(){const b=document.getElementById('btnReset');if(!b){const m=document.createElement('div');m.className='modal on';m.id='rm';m.innerHTML='<div class="box"><h2 style="margin-top:0">Set semula semua data?</h2><p class="muted">Semua kursus, pensyarah, bilik dan jadual akan kembali kepada nilai asal. Salin JSON dahulu jika mahu simpan.</p><div class="row"><button class="btn del" id="btnReset">Ya, set semula</button><button class="btn" onclick="document.getElementById(\'rm\').remove()">Batal</button></div></div>';document.body.appendChild(m);
+  document.getElementById('btnReset').onclick=()=>{state=JSON.parse(JSON.stringify(DEFAULT));save();renderAll();m.remove();toast('Data diset semula')}}}
+
+function renderAll(){renderNav();renderCourses();renderTypes();renderLects();renderRooms();renderFixed();renderSettings();if(tab==='jana')renderJana()}
+load();renderAll();
+</script>
+</body>
+</html>
