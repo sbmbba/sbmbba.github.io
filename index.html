@@ -1,555 +1,190 @@
-<!DOCTYPE html>
-<html lang="ms">
+<!doctype html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sistem Penjadualan Kelas BBA – A262</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{--navy:#14284b;--navy2:#1f3a68;--amber:#f5b800;--amber-l:#fff4cc;--bg:#f4f6fa;--card:#fff;--line:#dde3ec;--ink:#1b2333;--mute:#667085;--red:#c0392b;--red-l:#fdecea;--green:#1e7b4f;--green-l:#e6f4ec}
-*{box-sizing:border-box}
-body{margin:0;font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
-header{background:var(--navy);color:#fff;padding:16px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between}
-header h1{margin:0;font-size:19px;font-weight:600}
-header .sub{font-size:12px;opacity:.75}
-nav{display:flex;gap:2px;background:var(--navy2);padding:0 16px;overflow-x:auto}
-nav button{background:none;border:0;color:#c9d3e6;padding:12px 14px;font:inherit;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
-nav button.on{color:#fff;border-bottom-color:var(--amber)}
-main{padding:20px 24px;max-width:1400px;margin:0 auto}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
-.card h2{margin:0 0 4px;font-size:16px}
-.card p.h{margin:0 0 12px;color:var(--mute);font-size:13px}
-table{border-collapse:collapse;width:100%}
-th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
-th{background:var(--amber-l);font-size:12px;text-transform:uppercase;letter-spacing:.02em;color:#5a4300}
-.scroll th{position:sticky;top:0;z-index:1}
-td input,td select{width:100%;font:inherit;padding:5px 6px;border:1px solid var(--line);border-radius:5px;background:#fff}
-td input.num{width:80px}
-.btn{font:inherit;font-weight:500;padding:7px 14px;border-radius:6px;border:1px solid var(--navy2);background:#fff;color:var(--navy2);cursor:pointer}
-.btn:hover{background:#eef2f9}
-.btn.pri{background:var(--navy2);color:#fff}
-.btn.pri:hover{background:var(--navy)}
-.btn.amb{background:var(--amber);border-color:#d9a300;color:#2b2100}
-.btn.sm{padding:3px 9px;font-size:12px}
-.btn.del{border-color:#e3b4ae;color:var(--red)}
-.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.chips{display:flex;flex-wrap:wrap;gap:4px}
-.chip{font-size:11.5px;padding:2px 8px;border-radius:12px;border:1px solid var(--line);background:#f7f8fb;cursor:pointer;user-select:none;color:var(--mute)}
-.chip.on{background:var(--navy2);border-color:var(--navy2);color:#fff}
-.chip.off-red.on{background:var(--red);border-color:var(--red)}
-textarea{width:100%;font:13px/1.4 ui-monospace,Consolas,monospace;padding:8px;border:1px solid var(--line);border-radius:6px;min-height:110px}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
-.kpi{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
-.kpi .v{font-size:26px;font-weight:700}
-.kpi .l{font-size:12px;color:var(--mute)}
-.ok{color:var(--green)}.bad{color:var(--red)}
-.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:10px;font-weight:600}
-.tag.ok{background:var(--green-l)}.tag.bad{background:var(--red-l)}.tag.warn{background:var(--amber-l);color:#7a5a00}
-.warnlist{margin:0;padding-left:18px}.warnlist li{margin:3px 0}
-.grid{overflow-x:auto}
-.grid table th{text-align:center}
-.grid td{min-width:180px;padding:4px}
-.grid td.slot{min-width:100px;background:#f7f8fb;font-weight:600;font-size:12px;white-space:nowrap}
-.cls{font-size:11.5px;border-left:3px solid var(--navy2);background:#eef2f9;border-radius:4px;padding:3px 6px;margin:3px 0;line-height:1.3}
-.cls b{font-weight:600}
-.cls .m{color:var(--mute)}
-.fixed{border-left-color:var(--amber);background:var(--amber-l)}
-.prog{height:6px;background:var(--line);border-radius:4px;overflow:hidden;flex:1;min-width:120px}
-.prog div{height:100%;width:0;background:var(--amber);transition:width .1s}
-.muted{color:var(--mute);font-size:12.5px}
-.tabpane{display:none}.tabpane.on{display:block}
-.scroll{max-height:560px;overflow:auto}
-#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none}
-#toast.show{opacity:1}
-.modal{position:fixed;inset:0;background:rgba(10,20,40,.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:10}
-.modal.on{display:flex}
-.modal .box{background:#fff;border-radius:10px;padding:18px;max-width:700px;width:100%}
-@media print{nav,header .row,.noprint{display:none!important}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#071b3c" />
+  <title>LGZ 2026 | Attendance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{--navy:#071b3c;--blue:#007dc5;--green:#8dc63e;--ink:#14223a;--muted:#68758b;--line:#e6ebf2;--paper:#f4f7fb;--white:#fff;--red:#d84747;--shadow:0 12px 35px rgba(7,27,60,.08)}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);font-family:'DM Sans',sans-serif;color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer;border:0}h1,h2,h3,p{margin-top:0}h1,h2,h3,.brand-title{font-family:Manrope,sans-serif}.hidden{display:none!important}
+    .topbar{height:72px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,5vw,64px);box-shadow:0 4px 18px #071b3c25}.brand{display:flex;align-items:center;gap:13px}.brand-mark{width:40px;height:40px;border-radius:13px;background:linear-gradient(135deg,var(--blue),#06467c);display:grid;place-items:center;color:#fff;font-family:Manrope;font-weight:800;font-size:13px;box-shadow:inset 0 0 0 1px #ffffff30}.brand-title{font-size:15px;font-weight:800;letter-spacing:.02em}.brand-sub{font-size:10px;color:#a9c6e0;letter-spacing:.13em;text-transform:uppercase;margin-top:3px}.top-right{display:flex;align-items:center;gap:14px}.eyebrow{color:#92b7d8;font-size:10px;font-weight:700;letter-spacing:.17em;text-transform:uppercase}.pill{font-size:11px;background:#ffffff14;color:#cce8fa;border:1px solid #ffffff20;padding:7px 11px;border-radius:999px}
+    .container{width:min(1160px,calc(100% - 36px));margin:32px auto 60px}.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:24px}.page-head h1{font-size:27px;margin:7px 0 5px;letter-spacing:-.04em}.subhead{font-size:13px;color:var(--muted);margin:0}.actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.btn{padding:11px 15px;border-radius:10px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.15s}.btn-primary{color:#fff;background:var(--blue);box-shadow:0 5px 14px #007dc533}.btn-primary:hover{background:#006bab;transform:translateY(-1px)}.btn-secondary{background:#fff;color:var(--ink);border:1px solid var(--line)}.btn-secondary:hover{background:#f7f9fc}.btn-danger{background:#fff1f1;color:var(--red)}.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}.grid{display:grid;gap:16px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.stats{grid-template-columns:repeat(4,1fr);margin-bottom:22px}.stat{padding:18px 20px;position:relative;overflow:hidden}.stat:after{content:"";position:absolute;width:58px;height:58px;border-radius:50%;background:#007dc50b;right:-16px;top:-16px}.stat-label{color:var(--muted);font-size:11px;font-weight:600}.stat-value{font-family:Manrope;font-size:27px;letter-spacing:-.04em;font-weight:800;margin-top:7px}.stat-note{font-size:10px;color:#94a0b1;margin-top:3px}
+    .feature-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.feature-card{width:100%;min-height:128px;padding:18px;display:flex;align-items:flex-start;gap:13px;text-align:left;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow);transition:.16s}.feature-card:hover{transform:translateY(-2px);border-color:#b8d9ee;box-shadow:0 14px 28px rgba(7,27,60,.12)}.feature-icon{flex:0 0 43px;height:43px;border-radius:13px;background:#eaf5fc;color:var(--blue);display:grid;place-items:center;font-size:21px}.feature-card strong{display:block;font-family:Manrope;font-size:13px;margin:2px 0 7px}.feature-card small{display:block;font-size:11px;color:var(--muted);line-height:1.5}.welcome{padding:20px 22px;margin-bottom:17px;background:linear-gradient(115deg,#071b3c,#0a3c69);color:#fff;border-radius:15px;position:relative;overflow:hidden}.welcome h2{font-size:17px;margin:8px 0 5px}.welcome p{font-size:11px;color:#c1d5e6;margin:0}.welcome .eyebrow{color:#83c5ef}
+    .module-nav{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:18px}.module-nav .btn{padding:8px 11px;font-size:10px}.module-nav .active{background:var(--navy);color:#fff}.panel{padding:20px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:17px}.panel h2{font-size:15px;margin:0}.section-kicker{font-size:10px;color:var(--muted);margin-top:5px}.current{padding:17px;border-radius:13px;background:linear-gradient(115deg,#071b3c,#0a3c69);color:#fff;margin-bottom:17px;position:relative;overflow:hidden}.current-row{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;position:relative;z-index:1}.live-label{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#83c5ef;font-weight:700}.current h3{font-size:16px;margin:7px 0 4px}.current-meta{font-size:11px;color:#c1d5e6}.live-dot{width:8px;height:8px;background:var(--green);box-shadow:0 0 0 4px #8dc63e28;border-radius:50%;display:inline-block;margin-right:7px}.current-actions{display:flex;gap:7px;margin-top:15px;position:relative;z-index:1;flex-wrap:wrap}.current-actions .btn{padding:8px 11px;font-size:10px}.current-actions .btn-secondary{background:#ffffff17;border-color:#ffffff30;color:#fff}
+    .table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;text-align:left;white-space:nowrap}th{font-size:9px;color:#8894a6;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:10px;border-bottom:1px solid var(--line)}td{font-size:11px;padding:12px 10px;border-bottom:1px solid #f0f3f7}tbody tr:last-child td{border-bottom:0}.session-name{font-weight:700;color:#21324d}.subcell{font-size:10px;color:#8995a6;margin-top:4px}.status{display:inline-flex;align-items:center;gap:6px;font-size:10px;padding:5px 9px;border-radius:999px;font-weight:700}.status-active{background:#edfaef;color:#378b4a}.status-closed{background:#f1f3f6;color:#788497}.text-btn{color:var(--blue);font-weight:700;background:none;padding:0;font-size:10px}.empty{color:#8390a2;text-align:center;padding:30px 12px;font-size:12px}.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin:0 0 14px}.toolbar input,.toolbar select{min-width:190px;flex:1;border:1px solid var(--line);background:#fff;border-radius:9px;padding:10px 11px;font-size:11px;color:var(--ink)}.metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}.metric{padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:#fbfdff}.metric small{display:block;color:var(--muted);font-size:10px}.metric strong{display:block;font:800 21px Manrope;margin-top:5px}.note{font-size:11px;line-height:1.55;padding:12px 14px;border:1px solid #d8eaf6;border-radius:10px;background:#f2f8fc;color:#52667d;margin:12px 0}.quick-help{padding:17px;border:1px solid var(--line);border-radius:13px;background:#fff;margin-top:16px}.quick-help h3{font-size:13px;margin:0 0 7px}.quick-help p{font-size:11px;color:var(--muted);line-height:1.55;margin:0}
+    .login-card{width:min(430px,100%);margin:60px auto;padding:28px}.login-card h1{font-size:24px;margin-bottom:8px}.field{display:grid;gap:7px;margin:15px 0}.field label{font-size:11px;font-weight:700;color:#3d4c62}.field input,.field select{width:100%;padding:12px 13px;border:1px solid #dce3ed;border-radius:10px;background:#fff;font-size:13px;outline:none}.field input:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #007dc518}.message{font-size:11px;color:var(--red);min-height:16px;margin:6px 0}.modal-backdrop{position:fixed;inset:0;background:#071b3c77;display:grid;place-items:center;padding:18px;z-index:9}.modal{width:min(540px,100%);padding:24px;max-height:90vh;overflow:auto}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:17px}.modal-head h2{margin:0;font-size:17px}.close{background:#eff3f8;color:#637087;width:31px;height:31px;border-radius:9px;font-size:17px}.qr-box{background:#f3f8fc;border:1px dashed #bdd7e9;border-radius:15px;min-height:230px;display:grid;place-items:center;margin:17px 0;padding:16px}.qr-box canvas,.qr-box img{max-width:100%}.url-box{font-size:10px;word-break:break-all;background:#f6f8fb;border-radius:8px;padding:9px;color:#5b6a80}.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#10243f;color:#fff;padding:11px 15px;border-radius:10px;box-shadow:var(--shadow);z-index:20;font-size:12px}.check-page{min-height:calc(100vh - 72px);display:grid;place-items:start center;padding:45px 18px}.check-card{width:min(470px,100%);padding:28px}.check-logo{text-align:center;margin-bottom:23px}.check-logo .brand-mark{margin:0 auto 11px}.check-title{text-align:center;font-size:23px;margin-bottom:7px}.check-intro{text-align:center;color:var(--muted);font-size:12px;line-height:1.55}.session-chip{background:#f0f7fc;border:1px solid #d8eaf6;border-radius:11px;padding:12px 14px;margin:19px 0}.session-chip small{font-size:9px;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.12em}.session-chip strong{display:block;margin-top:5px;font-size:13px}.check-result{text-align:center;padding:20px 5px}.result-icon{margin:0 auto 14px;width:54px;height:54px;border-radius:50%;background:#edfaef;color:#388b4b;display:grid;place-items:center;font-size:25px}.check-foot{text-align:center;color:#99a3b1;font-size:10px;margin-top:20px}.config-note{background:#fff8e7;color:#7d5b16;border:1px solid #f1dfa9;border-radius:9px;padding:10px 12px;font-size:11px;margin:0 0 15px}.footer{text-align:center;font-size:10px;color:#a1aaba;margin-top:32px}
+    @media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}.feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.metric-row{grid-template-columns:repeat(3,1fr)}}@media(max-width:580px){.topbar{height:64px;padding:0 16px}.top-right .pill{display:none}.container{width:calc(100% - 24px);margin:22px auto 40px}.page-head{display:block}.page-head h1{font-size:23px}.page-head .actions{margin-top:15px}.page-head .btn{flex:1}.stats{gap:9px}.stat{padding:14px}.stat-value{font-size:23px}.panel{padding:14px}.table-wrap{margin:0 -5px}.top-right{gap:6px}.login-card{margin:35px auto;padding:22px}.check-card{padding:22px}.feature-grid{grid-template-columns:1fr;gap:10px}.feature-card{min-height:92px;padding:14px}.metric-row{grid-template-columns:1fr 1fr}.module-nav{gap:6px}.module-nav .btn{flex:1}.page-head .actions .btn{flex:auto}}
+    .print-only{display:none}
+    @media print{body{background:#fff}.topbar,.module-nav,.actions,.toolbar,.btn,.text-btn,.footer{display:none!important}.print-only{display:block!important}.container{width:100%;margin:0}.card{box-shadow:none;border-color:#ddd}.panel{padding:0}.page-head{margin-bottom:15px}.table-wrap{overflow:visible}table{white-space:normal}th,td{font-size:9pt;padding:7px}.note{background:#fff;color:#333}}
+  </style>
 </head>
 <body>
-<header>
-  <div><h1>Sistem Penjadualan Kelas BBA</h1><div class="sub">Semester A262 · Masukkan kursus, pensyarah &amp; bilik → Jana jadual</div></div>
-  <div class="row">
-    <button class="btn sm" onclick="openIO()">Simpan / Muat data</button>
-    <button class="btn sm del" onclick="resetAll()">Set semula</button>
-  </div>
-</header>
-<nav id="nav"></nav>
-<main>
+  <header class="topbar"><div class="brand"><div class="brand-mark">LGZ</div><div><div class="brand-title">LINDUNG Gen-Z Leaders Camp</div><div class="brand-sub">Attendance · 2026</div></div></div><div class="top-right"><span class="pill">PERKESO × UUM SBM</span><span class="eyebrow" id="topStatus">Programme dashboard</span></div></header>
+  <main id="app"></main><div id="modalRoot"></div><div id="toast" class="toast hidden"></div>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/+esm';
+    import QRCode from 'https://cdn.jsdelivr.net/npm/qrcode@1.5.4/+esm';
 
-<!-- KURSUS -->
-<section class="tabpane" id="t-kursus">
-  <div class="card">
-    <h2>1. Kursus yang ditawarkan</h2>
-    <p class="h">Bilangan kumpulan = Jumlah pelajar ÷ Kapasiti, dibundarkan (sama seperti lajur "Jumlah Slot Yang Perlu Ditawarkan" anda). Isi lajur <i>Ganti</i> untuk menetapkan sendiri.</p>
-    <div class="scroll"><table id="tblCourses"></table></div>
-    <div class="row" style="margin-top:10px">
-      <button class="btn sm" onclick="addCourse()">+ Tambah kursus</button>
-      <button class="btn sm" onclick="toggle('pasteCourses')">Tampal dari Excel</button>
-    </div>
-    <div id="pasteCourses" style="display:none;margin-top:10px">
-      <p class="muted">Salin baris dari Excel (lajur: KETERANGAN KURSUS | KOMPONEN | KAPASITI | JUMLAH PELAJAR) dan tampal di sini. Kod kursus yang sama akan dikemas kini.</p>
-      <textarea id="taCourses" placeholder="BPMNK1013 - PENGANTAR PENGURUSAN	TPW, EPP	100	545"></textarea>
-      <button class="btn sm pri" onclick="importCourses()">Import</button>
-    </div>
-  </div>
-</section>
+    // Browser-safe project URL and publishable key. Never use a Supabase secret/service_role key here.
+    const SUPABASE_URL = 'https://jkpkbvutwgwykrfmgpwe.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable__QCKTZbXnvq7dXtMZ43aAQ_KQLL-ZYe';
+    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const app = document.querySelector('#app');
+    const modalRoot = document.querySelector('#modalRoot');
+    const esc = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const dateFmt = value => new Intl.DateTimeFormat('en-MY',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Kuala_Lumpur'}).format(new Date(value));
+    const toast = message => { const el=document.querySelector('#toast');el.textContent=message;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),3200); };
+    let adminUser=null, currentSection='home', roster=[], sessions=[], attendance=[], confirmations=[], refreshTimer=null, confirmationAttendingOnly=false;
+    const modules=[
+      {id:'live',icon:'◉',title:'Live Attendance',desc:'Open a QR check-in and monitor arrivals for the current activity.'},
+      {id:'records',icon:'▤',title:'Attendance Records',desc:'Review check-ins across activities and find a participant or session.'},
+      {id:'history',icon:'◷',title:'Attendance History',desc:'Look up a participant and see their activity-by-activity history.'},
+      {id:'reports',icon:'▥',title:'Attendance Reports',desc:'Download CSV reports or print a report to save as PDF.'},
+      {id:'sessions',icon:'▦',title:'Session Management',desc:'Create activity QR sessions, show codes and close check-in windows.'},
+      {id:'directory',icon:'♙',title:'Participant Directory',desc:'Search participants, add or edit a record, and import roster updates.'},
+      {id:'confirmations',icon:'✓',title:'Participant Confirmation',desc:'Review who can attend the programme before the camp.'},
+    ];
 
-<!-- PENSYARAH -->
-<section class="tabpane" id="t-pensyarah">
-  <div class="card">
-    <h2>2. Pensyarah &amp; kuota</h2>
-    <p class="h">Kuota ikut jenis (boleh diganti setiap orang). Klik kod kursus yang boleh diajar (<u><b>bergaris</b></u> = diajar semester lepas; sistem utamakan kursus ini). <i>Corak hari</i> kosong = semua dibenarkan. <i>Hari tidak boleh</i> = hari pensyarah tidak boleh mengajar.</p>
-    <div class="scroll"><table id="tblLects"></table></div>
-    <div class="row" style="margin-top:10px">
-      <button class="btn sm" onclick="addLect()">+ Tambah pensyarah</button>
-      <button class="btn sm" onclick="toggle('pasteLects')">Tampal senarai pensyarah</button>
-      <button class="btn sm amb" onclick="toggle('pastePrev')">Import dari jadual semester lepas (A261)</button>
-    </div>
-    <div id="pastePrev" style="display:none;margin-top:10px">
-      <p class="muted">Buka fail <b>JADUAL WAKTU KULIAH PENGAJARAN SBM</b> (sheet BBA atau SBM), pilih semua baris termasuk lajur <b>NAMA PENSYARAH</b>, salin dan tampal di sini. Sistem akan cipta senarai pensyarah dan tanda kursus yang mereka ajar semester lepas (hanya kursus yang ada di tab Kursus). Semak <b>Jenis</b> setiap pensyarah selepas import.</p>
-      <textarea id="taPrev" placeholder="1	BPMNK3023	PENGURUSAN STRATEGIK	0	A	60	58	 AR	 8:30 - 10:00AM	DKG 6/5	2	DR. NAMA PENSYARAH	SBM	190"></textarea>
-      <button class="btn sm pri" onclick="importPrev()">Import</button> <span class="muted" id="prevMsg"></span>
-    </div>
-    <div id="pasteLects" style="display:none;margin-top:10px">
-      <p class="muted">Satu baris setiap pensyarah: <b>Nama ; Jenis (1–5) ; KOD1, KOD2</b> (boleh juga dipisahkan dengan Tab dari Excel). Contoh:</p>
-      <textarea id="taLects" placeholder="Prof. Madya Dr. Ali bin Abu ; 1 ; BPMNK3023, BPMNK3143
-Dr. Siti Aminah ; 2 ; BPMNK1013
-Dr. John Smith ; 4 ; BPMNK3023"></textarea>
-      <button class="btn sm pri" onclick="importLects()">Import</button>
-    </div>
-  </div>
-  <div class="card">
-    <h2>Jenis pensyarah &amp; kuota (slot/kumpulan semester ini)</h2>
-    <table id="tblTypes"></table>
-  </div>
-</section>
-
-<!-- BILIK -->
-<section class="tabpane" id="t-bilik">
-  <div class="card">
-    <h2>3. Bilik kuliah</h2>
-    <p class="h">Sistem memilih bilik terkecil yang muat kapasiti kursus. Kosongkan senarai jika mahu jana jadual tanpa bilik.</p>
-    <table id="tblRooms"></table>
-    <div class="row" style="margin-top:10px">
-      <button class="btn sm" onclick="addRoom()">+ Tambah bilik</button>
-      <button class="btn sm" onclick="toggle('pasteRooms')">Tampal senarai bilik</button>
-    </div>
-    <div id="pasteRooms" style="display:none;margin-top:10px">
-      <p class="muted">Satu baris: <b>Nama bilik ; Kapasiti</b></p>
-      <textarea id="taRooms" placeholder="DKG 1 ; 100
-BK 3 ; 60"></textarea>
-      <button class="btn sm pri" onclick="importRooms()">Import</button>
-    </div>
-  </div>
-</section>
-
-<!-- KHAS -->
-<section class="tabpane" id="t-khas">
-  <div class="card">
-    <h2>4. Permohonan khas / tetapan tetap</h2>
-    <p class="h">Untuk rayuan atau permintaan khusus. Kelas di sini diletakkan <b>dahulu</b>, tepat pada hari &amp; masa yang ditetapkan. "Bil. slot berturut" &gt; 1 = beberapa kumpulan berturut-turut dalam <b>bilik yang sama</b> (cth. 3 slot 8:30–12:50, Ahad &amp; Rabu).</p>
-    <table id="tblFixed"></table>
-    <div class="row" style="margin-top:10px"><button class="btn sm" onclick="addFixed()">+ Tambah permohonan</button></div>
-  </div>
-</section>
-
-<!-- TETAPAN -->
-<section class="tabpane" id="t-tetapan">
-  <div class="card">
-    <h2>Slot masa</h2>
-    <p class="h">Slot bermula 13:00 atau lewat dikira sesi petang.</p>
-    <table id="tblSlots"></table>
-    <button class="btn sm" style="margin-top:10px" onclick="state.slots.push({label:'17:00–18:20'});save();renderAll()">+ Tambah slot</button>
-  </div>
-  <div class="card">
-    <h2>Corak hari kuliah</h2>
-    <p class="h">Setiap kumpulan bertemu pada hari-hari dalam corak, pada slot yang sama. "Slot sekali duduk" = 2 bermaksud kelas 2 slot berturut (cth. Selasa sahaja).</p>
-    <table id="tblPatterns"></table>
-    <button class="btn sm" style="margin-top:10px" onclick="state.patterns.push({code:'BARU',days:[],len:1});save();renderAll()">+ Tambah corak</button>
-  </div>
-</section>
-
-<!-- JANA -->
-<section class="tabpane" id="t-jana">
-  <div class="card">
-    <div class="row" style="justify-content:space-between">
-      <div><h2>5. Jana jadual</h2><p class="h" style="margin:0">Sistem mencuba banyak susunan dan memilih yang terbaik (paling banyak kumpulan ditempatkan, tiada pertindihan pensyarah/bilik, kumpulan sama kursus disebarkan).</p></div>
-      <div class="row">
-        <label class="muted">Percubaan <input id="runs" type="number" value="300" min="20" max="3000" style="width:80px;padding:5px;border:1px solid var(--line);border-radius:5px"></label>
-        <button class="btn amb" id="btnGen" onclick="generate()">▶ Jana Jadual</button>
-      </div>
-    </div>
-    <div class="row" style="margin-top:10px"><div class="prog"><div id="progBar"></div></div><span class="muted" id="progTxt"></span></div>
-  </div>
-  <div id="precheck"></div>
-  <div id="results"></div>
-</section>
-</main>
-
-<div class="modal" id="io"><div class="box">
-  <h2 style="margin-top:0">Simpan / Muat data</h2>
-  <p class="muted">Data disimpan automatik dalam pelayar ini sahaja. Untuk simpanan kekal atau berkongsi, salin JSON di bawah dan simpan dalam fail. Untuk memuat, tampal JSON atau pilih fail.</p>
-  <textarea id="taIO" style="min-height:200px"></textarea>
-  <div class="row" style="margin-top:10px">
-    <button class="btn sm" onclick="copyText(JSON.stringify(stripResult(),null,1),'JSON disalin')">Salin JSON</button>
-    <input type="file" id="fileIO" accept=".json,.txt" onchange="loadFile(this)">
-    <button class="btn sm pri" onclick="loadJSON()">Muat dari teks</button>
-    <button class="btn sm" onclick="closeIO()">Tutup</button>
-  </div>
-</div></div>
-<div id="toast"></div>
-
-<script>
-const DAYS=['Ahad','Isnin','Selasa','Rabu','Khamis'];
-const DEFAULT={
-  types:[
-    {id:1,name:'Profesor / Prof. Madya / Pensyarah Kanan',quota:2},
-    {id:2,name:'Pensyarah memegang jawatan (Pengerusi Program, Pengarah, Dekan HEP)',quota:1},
-    {id:3,name:'Timbalan Dekan',quota:1},
-    {id:4,name:'Pensyarah Antarabangsa / Pelawat',quota:3},
-    {id:5,name:'Pensyarah Kontrak Ilmu & Budi',quota:2}
-  ],
-  ver:2,
-  slots:[{label:'08:30–10:00'},{label:'10:00–11:30'},{label:'11:30–13:00'},{label:'13:00–14:30'},{label:'14:30–16:00'},{label:'16:00–17:30'}],
-  patterns:[{code:'AR',days:[0,3],len:1},{code:'IK',days:[1,4],len:1}],
-  courses:[
-    {code:'BPMNK1013',name:'Pengantar Pengurusan',comp:'TPW, EPP',cap:100,students:545,ovr:''},
-    {code:'BPMNK2023',name:'Gelagat Organisasi',comp:'TPW, EPP',cap:70,students:27,ovr:''},
-    {code:'BPMNK2033',name:'Data Analitik dan Kecerdasan Perniagaan',comp:'TPW, EPP',cap:70,students:72,ovr:''},
-    {code:'BPMNK3023',name:'Pengurusan Strategik',comp:'TPW',cap:60,students:1303,ovr:''},
-    {code:'BPMNK3103',name:'Seminar Pemikiran Pengurusan',comp:'TPW',cap:60,students:316,ovr:''},
-    {code:'BPMNK3123',name:'Etika Pengurusan',comp:'TPW, EPP',cap:60,students:768,ovr:''},
-    {code:'BPMNK3143',name:'Kaedah Penyelidikan',comp:'TPW',cap:60,students:787,ovr:''},
-    {code:'BPINK3053',name:'Sistem Maklumat Pengurusan',comp:'TPW, EPP',cap:50,students:59,ovr:''}
-  ],
-  lects:[
-    {id:1,name:'Contoh: Pensyarah A (ganti nama)',type:1,qovr:'',courses:['BPMNK3023','BPMNK3143'],patterns:[],time:'all',blocked:[]},
-    {id:2,name:'Contoh: Pensyarah B (ganti nama)',type:4,qovr:'',courses:['BPMNK1013'],patterns:[],time:'all',blocked:[]}
-  ],
-  rooms:[{name:"DKG 1/1",cap:154},{name:"DKG 1/2",cap:96},{name:"DKG 1/3",cap:96},{name:"DKG 1/4",cap:144},{name:"DKG 1/5",cap:144},{name:"DKG 1/6",cap:144},{name:"DKG 1/7",cap:100},{name:"DKG 2/1",cap:230},{name:"DKG 2/2",cap:154},{name:"DKG 2/3",cap:96},{name:"DKG 2/4",cap:96},{name:"DKG 2/5",cap:144},{name:"DKG 2/6",cap:144},{name:"DKG 2/7",cap:144},{name:"DKG 2/8",cap:100},{name:"DKG 3/1",cap:230},{name:"DKG 3/6",cap:144},{name:"DKG 6/1",cap:190},{name:"DKG 6/2",cap:190},{name:"DKG 6/3",cap:190},{name:"DKG 6/4",cap:190},{name:"DKG 6/5",cap:190},{name:"DKG 6/6",cap:190},{name:"DKG 6/7",cap:190},{name:"DKG 6/8",cap:190},{name:"DKG 6/9",cap:190},{name:"DKG 6/10",cap:190},{name:"DKG 6/12",cap:160},{name:"DKG 6/13",cap:160},{name:"DKG 6/14",cap:160},{name:"DKG 6/15",cap:100},{name:"DKG 6/16",cap:100},{name:"DKG 6/19",cap:100},{name:"DKG 6/20",cap:100},{name:"DKG 6/22",cap:100},{name:"DKG 6/23",cap:100},{name:"DKG 6/24",cap:100},{name:"DKG 6/25",cap:100},{name:"DKG 6/26",cap:100},{name:"DKG 6/27",cap:100},{name:"DKG 6/28",cap:100},{name:"DKG 6/29",cap:100},{name:"DKG 6/30",cap:100},{name:"SBM203",cap:43},{name:"SBM207",cap:43}],
-  fixed:[],
-  nextId:3,
-  result:null
-};
-let state; let tab='kursus';
-const TABS=[['kursus','1 · Kursus'],['pensyarah','2 · Pensyarah'],['bilik','3 · Bilik'],['khas','4 · Permohonan Khas'],['jana','5 · Jana & Jadual'],['tetapan','Tetapan Masa']];
-
-function load(){try{const s=localStorage.getItem('bbaSched_A262');if(s){state=JSON.parse(s);if(!state.ver||state.ver<2){const D=JSON.parse(JSON.stringify(DEFAULT));state.slots=D.slots;state.patterns=D.patterns;state.rooms=D.rooms;state.ver=2;state.result=null;state.lects.forEach(l=>l.patterns=l.patterns.filter(x=>x==='AR'||x==='IK'));state.fixed.forEach(f=>{if(!['AR','IK'].includes(f.pat))f.pat='AR'})}return}}catch(e){} state=JSON.parse(JSON.stringify(DEFAULT))}
-function save(){try{localStorage.setItem('bbaSched_A262',JSON.stringify(state))}catch(e){}}
-function stripResult(){const c=JSON.parse(JSON.stringify(state));delete c.result;return c}
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
-function toggle(id){const e=document.getElementById(id);e.style.display=e.style.display==='none'?'block':'none'}
-async function copyText(txt,msg){try{await navigator.clipboard.writeText(txt);toast(msg||'Disalin')}catch(e){document.getElementById('taIO').value=txt;openIO();toast('Salin secara manual dari kotak teks')}}
-
-/* helpers */
-const need=c=>c.ovr!==''&&c.ovr!=null&&!isNaN(+c.ovr)?Math.max(0,parseInt(c.ovr)):(c.cap>0?Math.round(c.students/c.cap):0);
-const quotaOf=l=>l.qovr!==''&&l.qovr!=null&&!isNaN(+l.qovr)?parseInt(l.qovr):((state.types.find(t=>t.id==l.type)||{quota:0}).quota);
-const sessOf=i=>{const m=(state.slots[i]?.label||'').match(/(\d{1,2})[:.](\d{2})/);return m&&+m[1]>=13?'pm':'am'};
-const lectById=id=>state.lects.find(l=>l.id==id);
-function slotRange(s,len){const a=(state.slots[s]?.label||'').split(/[–-]/)[0].trim();const b=(state.slots[s+len-1]?.label||'').split(/[–-]/).pop().trim();return a+'–'+b}
-const patDays=p=>p.days.map(d=>DAYS[d]).join(' & ');
-
-/* NAV */
-function renderNav(){document.getElementById('nav').innerHTML=TABS.map(([k,l])=>`<button class="${k===tab?'on':''}" onclick="go('${k}')">${l}</button>`).join('');document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('on',p.id==='t-'+tab))}
-function go(k){tab=k;renderNav();if(k==='jana')renderJana()}
-
-/* COURSES */
-function renderCourses(){
-  let h='<tr><th>Kod</th><th>Nama kursus</th><th>Komponen</th><th>Kapasiti</th><th>Jumlah pelajar</th><th>Kumpulan (auto)</th><th>Ganti</th><th></th></tr>';
-  state.courses.forEach((c,i)=>{const n=need(c);const auto=c.cap>0?Math.round(c.students/c.cap):0;
-    h+=`<tr><td><input value="${esc(c.code)}" onchange="setC(${i},'code',this.value.trim().toUpperCase())" style="width:110px"></td>
-    <td><input value="${esc(c.name)}" onchange="setC(${i},'name',this.value)"></td>
-    <td><input value="${esc(c.comp)}" onchange="setC(${i},'comp',this.value)" style="width:90px"></td>
-    <td><input class="num" type="number" value="${c.cap}" onchange="setC(${i},'cap',+this.value)"></td>
-    <td><input class="num" type="number" value="${c.students}" onchange="setC(${i},'students',+this.value)"></td>
-    <td><b>${auto}</b>${auto===0&&c.students>0?' <span class="tag warn">pelajar tanpa kumpulan</span>':''}</td>
-    <td><input class="num" type="number" placeholder="–" value="${esc(c.ovr)}" onchange="setC(${i},'ovr',this.value)"></td>
-    <td><button class="btn sm del" onclick="state.courses.splice(${i},1);save();renderAll()">✕</button></td></tr>`});
-  const tot=state.courses.reduce((a,c)=>a+need(c),0);
-  h+=`<tr><td colspan="5" style="text-align:right"><b>Jumlah kumpulan diperlukan</b></td><td colspan="3"><b>${tot}</b></td></tr>`;
-  document.getElementById('tblCourses').innerHTML=h;
-}
-function setC(i,k,v){const old=state.courses[i].code;state.courses[i][k]=v;if(k==='code'){state.lects.forEach(l=>l.courses=l.courses.map(x=>x===old?v:x));state.fixed.forEach(f=>{if(f.course===old)f.course=v})}save();renderAll()}
-function addCourse(){state.courses.push({code:'KOD'+(state.courses.length+1),name:'',comp:'TPW',cap:60,students:0,ovr:''});save();renderAll()}
-function importCourses(){
-  const lines=document.getElementById('taCourses').value.split('\n').map(x=>x.trim()).filter(Boolean);let n=0;
-  lines.forEach(L=>{const p=L.split('\t').map(x=>x.replace(/^⊟|^⊞/,'').trim());let first=p[0];const m=first.match(/^([A-Z]{3,6}\d{3,5})\s*[-–]\s*(.*)$/i);if(!m)return;
-    const code=m[1].toUpperCase(),name=m[2].trim();const comp=p[1]||'';const cap=parseInt(p[2])||60;const st=parseInt(p[3])||0;
-    const ex=state.courses.find(c=>c.code===code);if(ex){Object.assign(ex,{name,comp,cap,students:st})}else state.courses.push({code,name,comp,cap,students:st,ovr:''});n++});
-  save();renderAll();toast(n+' kursus diimport');document.getElementById('taCourses').value='';
-}
-
-/* LECTURERS */
-function renderTypes(){
-  let h='<tr><th>Jenis</th><th>Keterangan</th><th>Kuota</th></tr>';
-  state.types.forEach((t,i)=>h+=`<tr><td>Jenis ${t.id}</td><td><input value="${esc(t.name)}" onchange="state.types[${i}].name=this.value;save();renderAll()"></td><td><input class="num" type="number" value="${t.quota}" onchange="state.types[${i}].quota=+this.value;save();renderAll()"></td></tr>`);
-  document.getElementById('tblTypes').innerHTML=h;
-}
-function renderLects(){
-  let h='<tr><th style="min-width:190px">Nama</th><th>Jenis</th><th>Kuota</th><th>Kursus boleh diajar</th><th>Corak hari</th><th>Masa</th><th>Hari tidak boleh</th><th></th></tr>';
-  state.lects.forEach((l,i)=>{
-    h+=`<tr><td><input value="${esc(l.name)}" onchange="state.lects[${i}].name=this.value;save();renderAll()"></td>
-    <td><select onchange="state.lects[${i}].type=+this.value;save();renderAll()" style="width:150px">${state.types.map(t=>`<option value="${t.id}" ${t.id==l.type?'selected':''}>${t.id} · ${esc(t.name)}</option>`).join('')}</select></td>
-    <td><input class="num" type="number" style="width:60px" placeholder="${quotaOf({...l,qovr:''})}" value="${esc(l.qovr)}" onchange="state.lects[${i}].qovr=this.value;save();renderAll()"></td>
-    <td><div class="chips">${state.courses.map(c=>`<span class="chip ${l.courses.includes(c.code)?'on':''}" style="${(l.prev||[]).includes(c.code)?'font-weight:700;text-decoration:underline':''}" title="${esc(c.name)}${(l.prev||[]).includes(c.code)?' (diajar A261)':''}" onclick="tog(${i},'courses','${esc(c.code)}')">${esc(c.code)}</span>`).join('')}</div></td>
-    <td><div class="chips">${state.patterns.map(p=>`<span class="chip ${l.patterns.includes(p.code)?'on':''}" onclick="tog(${i},'patterns','${esc(p.code)}')">${esc(p.code)}</span>`).join('')}</div></td>
-    <td><select onchange="state.lects[${i}].time=this.value;save()" style="width:95px"><option value="all" ${l.time==='all'?'selected':''}>Bebas</option><option value="am" ${l.time==='am'?'selected':''}>Pagi sahaja</option><option value="pm" ${l.time==='pm'?'selected':''}>Petang sahaja</option></select></td>
-    <td><div class="chips">${DAYS.map((d,di)=>`<span class="chip off-red ${l.blocked.includes(di)?'on':''}" onclick="tog(${i},'blocked',${di})">${d.slice(0,3)}</span>`).join('')}</div></td>
-    <td><button class="btn sm del" onclick="delLect(${i})">✕</button></td></tr>`});
-  const totQ=state.lects.reduce((a,l)=>a+quotaOf(l),0),totN=state.courses.reduce((a,c)=>a+need(c),0);
-  h+=`<tr><td colspan="2" style="text-align:right"><b>Jumlah kuota</b></td><td><b class="${totQ>=totN?'ok':'bad'}">${totQ}</b></td><td colspan="5" class="muted">Diperlukan: ${totN} kumpulan · ${state.lects.length} pensyarah</td></tr>`;
-  document.getElementById('tblLects').innerHTML=h;
-}
-function tog(i,k,v){const a=state.lects[i][k];const j=a.indexOf(v);j>=0?a.splice(j,1):a.push(v);save();renderAll()}
-function addLect(){state.lects.push({id:state.nextId++,name:'',type:1,qovr:'',courses:[],patterns:[],time:'all',blocked:[]});save();renderAll()}
-function delLect(i){const id=state.lects[i].id;state.lects.splice(i,1);state.fixed=state.fixed.filter(f=>f.lec!=id);save();renderAll()}
-function importPrev(){
-  const lines=document.getElementById('taPrev').value.split('\n').filter(x=>x.trim());const map={};let rows=0,noName=0;
-  const codes=new Set(state.courses.map(c=>c.code));
-  lines.forEach(L=>{const p=L.split('\t').map(x=>x.trim());const ci=p.findIndex(x=>/^[A-Z]{3,6}\d{3,5}$/i.test(x));if(ci<0)return;
-    const code=p[ci].toUpperCase();rows++;
-    let name='';for(let j=ci+1;j<p.length;j++){if(/\(\d{3,5}\)\s*$/.test(p[j])||/^(Prof|Dr|Encik|Puan|En\.|Pn\.|Tuan)/i.test(p[j])){name=p[j];break}}
-    if(!name)name=p[ci+10]||'';name=name.replace(/^\(\s*\)$/,'').trim();
-    if(!name||/^SBM$|^\d+$/.test(name)){noName++;return}
-    name=name.replace(/\s+/g,' ');if(!codes.has(code))return;
-    const m=map[name]=map[name]||{courses:{},n:0};m.courses[code]=(m.courses[code]||0)+1;m.n++});
-  const names=Object.keys(map);const msg=document.getElementById('prevMsg');
-  if(!names.length){msg.innerHTML='<b class="bad">Tiada nama pensyarah dijumpai'+(noName?` — ${noName} baris mempunyai lajur NAMA PENSYARAH kosong "( )". Isi nama dahulu dalam Excel.`:'.')+'</b>';return}
-  state.lects=state.lects.filter(l=>!l.name.startsWith('Contoh:'));
-  names.forEach(n=>{const cs=Object.keys(map[n].courses);const ex=state.lects.find(l=>l.name.toLowerCase()===n.toLowerCase());
-    if(ex){ex.prev=[...new Set([...(ex.prev||[]),...cs])];cs.forEach(c=>{if(!ex.courses.includes(c))ex.courses.push(c)})}else state.lects.push({id:state.nextId++,name:n,type:1,qovr:'',courses:cs,prev:cs.slice(),patterns:[],time:'all',blocked:[]})});
-  save();renderAll();msg.innerHTML=`<b class="ok">${names.length} pensyarah diimport dari ${rows} baris.</b>`+(noName?` ${noName} baris tanpa nama dilangkau.`:'')+' Sila tetapkan Jenis (1–5) setiap pensyarah.';
-}
-function importLects(){
-  const lines=document.getElementById('taLects').value.split('\n').map(x=>x.trim()).filter(Boolean);let n=0;
-  lines.forEach(L=>{const p=L.split(/[;\t]/).map(x=>x.trim());if(!p[0])return;const type=parseInt(p[1])||1;
-    const cs=(p[2]||'').split(/[,\s]+/).map(x=>x.toUpperCase()).filter(Boolean);
-    const ex=state.lects.find(l=>l.name.toLowerCase()===p[0].toLowerCase());
-    if(ex){ex.type=type;if(cs.length)ex.courses=cs}else state.lects.push({id:state.nextId++,name:p[0],type,qovr:'',courses:cs,patterns:[],time:'all',blocked:[]});n++});
-  state.lects=state.lects.filter(l=>!l.name.startsWith('Contoh:')||n===0);
-  save();renderAll();toast(n+' pensyarah diimport');document.getElementById('taLects').value='';
-}
-
-/* ROOMS */
-function renderRooms(){
-  let h='<tr><th>Nama bilik</th><th>Kapasiti</th><th></th></tr>';
-  state.rooms.forEach((r,i)=>h+=`<tr><td><input value="${esc(r.name)}" onchange="state.rooms[${i}].name=this.value;save();renderAll()"></td><td><input class="num" type="number" value="${r.cap}" onchange="state.rooms[${i}].cap=+this.value;save();renderAll()"></td><td><button class="btn sm del" onclick="state.rooms.splice(${i},1);save();renderAll()">✕</button></td></tr>`);
-  document.getElementById('tblRooms').innerHTML=h;
-}
-function addRoom(){state.rooms.push({name:'Bilik '+(state.rooms.length+1),cap:60});save();renderAll()}
-function importRooms(){const lines=document.getElementById('taRooms').value.split('\n').map(x=>x.trim()).filter(Boolean);let n=0;
-  lines.forEach(L=>{const p=L.split(/[;\t]/).map(x=>x.trim());if(!p[0])return;const ex=state.rooms.find(r=>r.name===p[0]);const cap=parseInt(p[1])||60;ex?ex.cap=cap:state.rooms.push({name:p[0],cap});n++});
-  save();renderAll();toast(n+' bilik diimport');document.getElementById('taRooms').value=''}
-
-/* FIXED */
-function renderFixed(){
-  let h='<tr><th>Pensyarah</th><th>Kursus</th><th>Corak hari</th><th>Slot mula</th><th>Bil. slot berturut</th><th>Bilik</th><th></th></tr>';
-  state.fixed.forEach((f,i)=>{
-    h+=`<tr><td><select onchange="setF(${i},'lec',+this.value)"><option value="">– pilih –</option>${state.lects.map(l=>`<option value="${l.id}" ${l.id==f.lec?'selected':''}>${esc(l.name)}</option>`).join('')}</select></td>
-    <td><select onchange="setF(${i},'course',this.value)">${state.courses.map(c=>`<option ${c.code===f.course?'selected':''}>${esc(c.code)}</option>`).join('')}</select></td>
-    <td><select onchange="setF(${i},'pat',this.value)">${state.patterns.map(p=>`<option value="${esc(p.code)}" ${p.code===f.pat?'selected':''}>${esc(p.code)} (${patDays(p)})</option>`).join('')}</select></td>
-    <td><select onchange="setF(${i},'start',+this.value)">${state.slots.map((s,si)=>`<option value="${si}" ${si==f.start?'selected':''}>${esc(s.label)}</option>`).join('')}</select></td>
-    <td><input class="num" type="number" min="1" max="6" value="${f.count}" onchange="setF(${i},'count',Math.max(1,+this.value))"></td>
-    <td><select onchange="setF(${i},'room',this.value)"><option value="">Auto (bilik sama)</option>${state.rooms.map(r=>`<option ${r.name===f.room?'selected':''}>${esc(r.name)}</option>`).join('')}</select></td>
-    <td><button class="btn sm del" onclick="state.fixed.splice(${i},1);save();renderAll()">✕</button></td></tr>`});
-  if(!state.fixed.length)h+='<tr><td colspan="7" class="muted">Tiada permohonan khas.</td></tr>';
-  document.getElementById('tblFixed').innerHTML=h;
-}
-function setF(i,k,v){state.fixed[i][k]=v;save();renderAll()}
-function addFixed(){state.fixed.push({lec:'',course:state.courses[0]?.code||'',pat:state.patterns[0]?.code||'',start:0,count:1,room:''});save();renderAll()}
-
-/* SETTINGS */
-function renderSettings(){
-  document.getElementById('tblSlots').innerHTML='<tr><th>#</th><th>Masa</th><th>Sesi</th><th></th></tr>'+state.slots.map((s,i)=>`<tr><td>${i+1}</td><td><input value="${esc(s.label)}" onchange="state.slots[${i}].label=this.value;save();renderAll()"></td><td>${sessOf(i)==='am'?'Pagi':'Petang'}</td><td><button class="btn sm del" onclick="state.slots.splice(${i},1);save();renderAll()">✕</button></td></tr>`).join('');
-  document.getElementById('tblPatterns').innerHTML='<tr><th>Kod</th><th>Hari</th><th>Slot sekali duduk</th><th></th></tr>'+state.patterns.map((p,i)=>`<tr><td><input value="${esc(p.code)}" style="width:80px" onchange="renamePat(${i},this.value.trim())"></td><td><div class="chips">${DAYS.map((d,di)=>`<span class="chip ${p.days.includes(di)?'on':''}" onclick="togPD(${i},${di})">${d}</span>`).join('')}</div></td><td><select onchange="state.patterns[${i}].len=+this.value;save();renderAll()"><option ${p.len==1?'selected':''}>1</option><option ${p.len==2?'selected':''}>2</option><option ${p.len==3?'selected':''}>3</option></select></td><td><button class="btn sm del" onclick="state.patterns.splice(${i},1);save();renderAll()">✕</button></td></tr>`).join('');
-}
-function togPD(i,d){const a=state.patterns[i].days;const j=a.indexOf(d);j>=0?a.splice(j,1):a.push(d);a.sort();save();renderAll()}
-function renamePat(i,v){const o=state.patterns[i].code;state.patterns[i].code=v;state.lects.forEach(l=>l.patterns=l.patterns.map(x=>x===o?v:x));state.fixed.forEach(f=>{if(f.pat===o)f.pat=v});save();renderAll()}
-
-/* ================= SCHEDULER ================= */
-function buildPositions(){
-  const pos=[];
-  state.patterns.forEach(p=>{if(!p.days.length)return;const len=Math.max(1,+p.len||1);
-    for(let s=0;s+len<=state.slots.length;s++){let ok=true;for(let k=1;k<len;k++)if(sessOf(s+k)!==sessOf(s))ok=false;if(!ok)continue;
-      const cells=[];p.days.forEach(d=>{for(let k=0;k<len;k++)cells.push(d+'-'+(s+k))});
-      pos.push({pat:p.code,s,len,cells,days:p.days,sess:sessOf(s)})}});
-  return pos;
-}
-function lectAllows(l,ps){if(l.patterns.length&&!l.patterns.includes(ps.pat))return false;if(l.time!=='all'&&ps.sess!==l.time)return false;if(ps.days.some(d=>l.blocked.includes(d)))return false;return true}
-
-function runOnce(P,rnd){
-  const lecBusy={},roomBusy={},used={},teach={},dayLoad={},lecRoomAt={},posCount={},coursePos={};
-  const A=[],U=[],W=[];let cost=0;
-  state.lects.forEach(l=>{lecBusy[l.id]=new Set();used[l.id]=0;teach[l.id]=new Set()});
-  state.rooms.forEach(r=>roomBusy[r.name]=new Set());
-  const remaining={};state.courses.forEach(c=>remaining[c.code]=need(c));
-  const courseOf=code=>state.courses.find(c=>c.code===code);
-  function commit(l,c,ps,room,fixed){
-    ps.cells.forEach(x=>{lecBusy[l.id].add(x);if(room)roomBusy[room].add(x);lecRoomAt[l.id+'|'+x]=room;const d=x.split('-')[0];dayLoad[l.id+'|'+d]=(dayLoad[l.id+'|'+d]||0)+1});
-    used[l.id]++;teach[l.id].add(c.code);const k=ps.pat+'|'+ps.s;posCount[k]=(posCount[k]||0)+1;coursePos[c.code+'|'+k]=(coursePos[c.code+'|'+k]||0)+1;
-    remaining[c.code]--;A.push({course:c.code,lec:l.id,pat:ps.pat,s:ps.s,len:ps.len,days:ps.days,room,fixed});
-  }
-  const roomFree=(r,cells)=>cells.every(x=>!roomBusy[r].has(x));
-  const hasRooms=state.rooms.length>0;
-  // 1. fixed requests
-  state.fixed.forEach((f,fi)=>{
-    const l=lectById(f.lec),c=courseOf(f.course);if(!l||!c){W.push(`Permohonan khas #${fi+1}: pensyarah/kursus tidak lengkap.`);return}
-    const p=state.patterns.find(x=>x.code===f.pat);if(!p){W.push(`Permohonan khas #${fi+1}: corak hari tidak wujud.`);return}
-    const blocks=[];for(let i=0;i<f.count;i++){const ps=P.find(x=>x.pat===f.pat&&x.s===f.start+i*(p.len||1));if(!ps){W.push(`Permohonan khas ${esc(l.name)} (${c.code}): slot ke-${i+1} melebihi slot masa yang ada.`);return}blocks.push(ps)}
-    if(blocks.some(ps=>ps.cells.some(x=>lecBusy[l.id].has(x)))){W.push(`Permohonan khas ${esc(l.name)}: bertindih dengan permohonan lain.`);return}
-    let room='';
-    if(hasRooms){const allCells=blocks.flatMap(b=>b.cells);
-      if(f.room){if(!roomBusy[f.room]||!roomFree(f.room,allCells)){W.push(`Permohonan khas ${esc(l.name)}: bilik ${esc(f.room)} tidak tersedia.`);return}room=f.room}
-      else{const cand=state.rooms.filter(r=>roomFree(r.name,allCells)).sort((a,b)=>(a.cap>=c.cap?0:1e4)+a.cap-((b.cap>=c.cap?0:1e4)+b.cap));if(!cand.length){W.push(`Permohonan khas ${esc(l.name)}: tiada bilik sama yang kosong untuk semua slot.`);return}room=cand[0].name;if(cand[0].cap<c.cap)W.push(`Permohonan khas ${esc(l.name)}: bilik ${esc(room)} (${cand[0].cap}) lebih kecil daripada kapasiti ${c.cap}.`)}}
-    blocks.forEach(ps=>commit(l,c,ps,room,true));
-    if(used[l.id]>quotaOf(l))W.push(`${esc(l.name)} melebihi kuota (${used[l.id]}/${quotaOf(l)}) kerana permohonan khas.`);
-    if(remaining[c.code]<0)W.push(`${c.code}: permohonan khas melebihi bilangan kumpulan diperlukan.`);
-  });
-  // 2. remaining sections
-  const elig={};state.courses.forEach(c=>elig[c.code]=state.lects.filter(l=>l.courses.includes(c.code)).length);
-  const secs=[];state.courses.forEach(c=>{for(let i=0;i<remaining[c.code];i++)secs.push({c,key:elig[c.code]+rnd()*1.5})});
-  secs.sort((a,b)=>a.key-b.key);
-  const roomsSorted=state.rooms.slice().sort((a,b)=>a.cap-b.cap);
-  function pickRoom(l,c,ps){
-    // prefer room the lecturer uses in an adjacent slot
-    for(const x of ps.cells){const [d,s]=x.split('-');for(const nb of [d+'-'+(+s-1),d+'-'+(+s+1)]){const r=lecRoomAt[l.id+'|'+nb];if(r&&roomBusy[r]&&roomFree(r,ps.cells)){const rr=state.rooms.find(z=>z.name===r);if(rr&&rr.cap>=c.cap)return {room:r,pen:(rr.cap-c.cap)/50-0.6}}}}
-    for(const r of roomsSorted)if(r.cap>=c.cap&&roomFree(r.name,ps.cells))return {room:r.name,pen:(r.cap-c.cap)/50};
-    for(let i=roomsSorted.length-1;i>=0;i--){const r=roomsSorted[i];if(roomFree(r.name,ps.cells))return {room:r.name,pen:50+(c.cap-r.cap)}}
-    return null;
-  }
-  for(const {c} of secs){
-    const cand=[];
-    for(const l of state.lects){
-      if(!l.courses.includes(c.code))continue;const q=quotaOf(l);if(used[l.id]>=q)continue;
-      for(const ps of P){
-        if(!lectAllows(l,ps))continue;
-        if(ps.cells.some(x=>lecBusy[l.id].has(x)))continue;
-        let sc=0;const k=ps.pat+'|'+ps.s;
-        sc+=3*(coursePos[c.code+'|'+k]||0);
-        sc+=0.35*(posCount[k]||0);
-        if(teach[l.id].has(c.code))sc-=2;else if(teach[l.id].size)sc+=2;
-        if(l.prev&&l.prev.length&&!l.prev.includes(c.code))sc+=5;
-        sc-=1.5*((q-used[l.id])/Math.max(1,q));
-        let adj=0;for(const x of ps.cells){const [d,s]=x.split('-').map(Number);if(lecBusy[l.id].has(d+'-'+(s-1))||lecBusy[l.id].has(d+'-'+(s+1)))adj++;if((dayLoad[l.id+'|'+d]||0)+1>3)sc+=4}
-        sc-=0.3*adj;
-        sc+=rnd()*0.9;
-        cand.push({l,ps,sc});
-      }
+    function checkInPage(){
+      const params=new URLSearchParams(location.search),sessionId=params.get('session'),token=params.get('token');
+      app.innerHTML=`<section class="check-page"><div class="card check-card"><div class="check-logo"><div class="brand-mark">LGZ</div><div class="eyebrow" style="color:#60748e">PERKESO × UUM SBM</div></div><div id="checkContent"><h1 class="check-title">Activity check-in</h1><p class="check-intro">Enter your LGZ participant ID or matric number to record attendance.</p><div class="session-chip"><small>Activity session</small><strong id="sessionTitle">Loading session…</strong></div><form id="checkForm"><div class="field"><label for="participantCode">Participant ID / Matric No.</label><input id="participantCode" required autocomplete="off" placeholder="e.g. LGZ-001 or your matric number" maxlength="40" /></div><p class="message" id="checkMessage"></p><button class="btn btn-primary" style="width:100%;padding:13px" type="submit">Confirm attendance</button></form><div class="check-foot">LINDUNG Gen-Z Leaders Camp 2026</div></div></div></section>`;
+      if(!sessionId||!token){document.querySelector('#sessionTitle').textContent='Invalid QR code';document.querySelector('#checkForm').classList.add('hidden');return;}
+      db.rpc('get_public_session',{p_session_id:sessionId,p_qr_token:token}).then(({data,error})=>{if(error||!data?.ok){document.querySelector('#sessionTitle').textContent='This session is closed or unavailable';document.querySelector('#checkForm').classList.add('hidden');return;}document.querySelector('#sessionTitle').textContent=data.activity_label;});
+      document.querySelector('#checkForm').addEventListener('submit',async e=>{e.preventDefault();const btn=e.submitter;btn.disabled=true;btn.textContent='Checking…';const code=document.querySelector('#participantCode').value.trim();const {data,error}=await db.rpc('lgz_check_in',{p_session_id:sessionId,p_qr_token:token,p_participant_code:code});if(error||!data?.ok){document.querySelector('#checkMessage').textContent=data?.message||'We could not record this check-in. Check your ID and try again.';btn.disabled=false;btn.textContent='Confirm attendance';return;}const isDup=data.status==='already_recorded';document.querySelector('#checkContent').innerHTML=`<div class="check-result"><div class="result-icon">✓</div><h1 class="check-title">${isDup?'Already recorded':'You’re checked in'}</h1><p class="check-intro">${isDup?'Your attendance for this activity was already recorded.':'Your attendance has been recorded successfully.'}</p><div class="session-chip"><small>Activity session</small><strong>${esc(data.activity_label)}</strong></div><div class="check-foot">You can close this page now.</div></div>`;});
     }
-    cand.sort((a,b)=>a.sc-b.sc);
-    let best=null,bc=Infinity;
-    for(const cd of cand){
-      if(!hasRooms){best={l:cd.l,ps:cd.ps,room:''};bc=cd.sc;break}
-      const r=pickRoom(cd.l,c,cd.ps);if(!r)continue;
-      const tot=cd.sc+r.pen;if(tot<bc){bc=tot;best={l:cd.l,ps:cd.ps,room:r.room}}
-      if(r.pen<1)break;
+    function confirmationPage(){
+      document.querySelector('#topStatus').textContent='Participant RSVP';
+      app.innerHTML=`<section class="check-page"><div class="card check-card"><div class="check-logo"><div class="brand-mark">LGZ</div><div class="eyebrow" style="color:#60748e">PERKESO × UUM SBM</div></div><div id="confirmContent"><h1 class="check-title">Confirm your attendance</h1><p class="check-intro">Please confirm whether you can attend LINDUNG Gen-Z Leaders Camp 2026. Enter the email address and matric number you used when registering.</p><form id="confirmForm"><div class="field"><label for="confirmEmail">Email address</label><input id="confirmEmail" type="email" required autocomplete="email" maxlength="254" placeholder="The email address you registered with" /></div><div class="field"><label for="confirmMatric">Matric number</label><input id="confirmMatric" required autocomplete="off" maxlength="40" placeholder="Your matric number" /></div><div class="field"><label for="confirmResponse">Your confirmation</label><select id="confirmResponse" required><option value="">Select one response</option><option value="attending">Yes, I can attend</option><option value="cannot_attend">No, I cannot attend</option><option value="unsure">I am not sure yet</option></select></div><p class="message" id="confirmMessage" aria-live="polite"></p><button class="btn btn-primary" id="confirmSubmit" style="width:100%;padding:13px" type="submit">Submit confirmation</button></form><div class="check-foot">Your response is shared with the LGZ organising team only.</div></div></div></section>`;
+      document.querySelector('#confirmForm').addEventListener('submit',async e=>{e.preventDefault();const btn=document.querySelector('#confirmSubmit'),message=document.querySelector('#confirmMessage');btn.disabled=true;btn.textContent='Submitting…';message.textContent='';const {data,error}=await db.rpc('lgz_submit_confirmation_email',{p_email:document.querySelector('#confirmEmail').value.trim(),p_matric_no:document.querySelector('#confirmMatric').value.trim(),p_response:document.querySelector('#confirmResponse').value});if(error||!data?.ok){message.textContent=data?.message||'We could not verify those details. Check your registered email and matric number, then try again.';btn.disabled=false;btn.textContent='Submit confirmation';return;}const labels={attending:'You confirmed that you can attend.',cannot_attend:'Your response that you cannot attend has been recorded.',unsure:'Your response has been recorded.'};document.querySelector('#confirmContent').innerHTML=`<div class="check-result"><div class="result-icon">✓</div><h1 class="check-title">Confirmation received</h1><p class="check-intro">${labels[data.response]||'Your response has been recorded.'}</p><p class="check-foot">You can submit again if your plans change.</p></div>`;});
     }
-    if(best){commit(best.l,c,best.ps,best.room,false);cost+=bc;const r=state.rooms.find(x=>x.name===best.room);if(r&&r.cap<c.cap)cost+=20}
-    else U.push(c.code);
-  }
-  return {A,U,W,cost:U.length*1000+cost};
-}
-
-let genBusy=false;
-function generate(){
-  if(genBusy)return;const P=buildPositions();
-  if(!P.length){toast('Tiada corak hari/slot yang sah');return}
-  genBusy=true;const N=Math.max(20,Math.min(3000,+document.getElementById('runs').value||300));
-  let best=null,i=0;const bar=document.getElementById('progBar'),txt=document.getElementById('progTxt');
-  let seed=Date.now()%2147483647;const rnd=()=>(seed=seed*16807%2147483647)/2147483647;
-  (function chunk(){
-    const end=Math.min(N,i+15);for(;i<end;i++){const r=runOnce(P,rnd);if(!best||r.cost<best.cost)best=r}
-    bar.style.width=(i/N*100)+'%';txt.textContent=`${i}/${N} percubaan · terbaik: ${best.A.length} ditempatkan, ${best.U.length} tidak`;
-    if(i<N)setTimeout(chunk,0);else{genBusy=false;finalize(best)}
-  })();
-}
-function letters(n){let s='';n++;while(n>0){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26)}return s}
-function finalize(r){
-  const byC={};r.A.forEach(a=>(byC[a.course]=byC[a.course]||[]).push(a));
-  const pOrder=c=>state.patterns.findIndex(p=>p.code===c);
-  Object.values(byC).forEach(list=>{list.sort((a,b)=>(b.fixed-a.fixed)||(pOrder(a.pat)-pOrder(b.pat))||(a.s-b.s));list.forEach((a,i)=>a.grp=letters(i))});
-  state.result={A:r.A,U:r.U,W:r.W,at:new Date().toLocaleString('ms-MY')};save();renderJana();toast('Jadual dijana');
-}
-
-/* ================= RESULTS ================= */
-let view='kursus',filt='';
-function renderJana(){
-  // precheck
-  const rows=state.courses.map(c=>{const n=need(c);const sup=state.lects.filter(l=>l.courses.includes(c.code)).reduce((a,l)=>a+quotaOf(l),0);return {c,n,sup,ok:sup>=n}});
-  const totN=rows.reduce((a,r)=>a+r.n,0),totQ=state.lects.reduce((a,l)=>a+quotaOf(l),0);
-  const P=buildPositions();const roomCap=state.rooms.length?state.rooms.length*state.slots.length*DAYS.length:Infinity;
-  const meet=state.courses.reduce((a,c)=>a+need(c)*2,0);
-  let h=`<div class="card"><h2>Semakan sebelum jana</h2><p class="h">Kuota pensyarah yang boleh mengajar setiap kursus berbanding kumpulan diperlukan.</p>
-  <div class="kpis"><div class="kpi"><div class="v">${totN}</div><div class="l">Kumpulan diperlukan</div></div>
-  <div class="kpi"><div class="v ${totQ>=totN?'ok':'bad'}">${totQ}</div><div class="l">Jumlah kuota pensyarah</div></div>
-  <div class="kpi"><div class="v">${state.lects.length}</div><div class="l">Pensyarah</div></div>
-  <div class="kpi"><div class="v">${P.length}</div><div class="l">Kombinasi hari × slot</div></div></div>
-  <table><tr><th>Kursus</th><th>Diperlukan</th><th>Kuota pensyarah layak</th><th>Status</th></tr>
-  ${rows.map(r=>`<tr><td><b>${esc(r.c.code)}</b> ${esc(r.c.name)}</td><td>${r.n}</td><td>${r.sup}</td><td>${r.ok?'<span class="tag ok">Cukup</span>':`<span class="tag bad">Kurang ${r.n-r.sup}</span>`}</td></tr>`).join('')}</table>
-  <p class="muted" style="margin-bottom:0">Nota: kuota seorang pensyarah dikongsi antara semua kursus yang ditanda, jadi "Cukup" di sini belum menjamin semua kumpulan dapat ditempatkan.${meet>roomCap?' <b class="bad">Bilik tidak mencukupi untuk semua pertemuan.</b>':''}</p></div>`;
-  document.getElementById('precheck').innerHTML=h;
-  const R=state.result;if(!R){document.getElementById('results').innerHTML='';return}
-  const valid=R.A.filter(a=>state.courses.some(c=>c.code===a.course));
-  let o=`<div class="card"><div class="row" style="justify-content:space-between"><div><h2>Keputusan jadual</h2><p class="h" style="margin:0">Dijana ${esc(R.at)} · Jika anda ubah data, tekan Jana semula.</p></div>
-  <div class="row noprint"><button class="btn sm" onclick="copyCSV()">Salin CSV (untuk Excel)</button></div></div>
-  <div class="kpis" style="margin-top:12px"><div class="kpi"><div class="v ok">${valid.length}</div><div class="l">Kumpulan ditempatkan</div></div>
-  <div class="kpi"><div class="v ${R.U.length?'bad':'ok'}">${R.U.length}</div><div class="l">Tidak dapat ditempatkan</div></div>
-  <div class="kpi"><div class="v">${valid.filter(a=>a.fixed).length}</div><div class="l">Dari permohonan khas</div></div></div>`;
-  const unc={};R.U.forEach(c=>unc[c]=(unc[c]||0)+1);
-  const warns=[...R.W,...Object.entries(unc).map(([c,n])=>`${c}: ${n} kumpulan tidak dapat ditempatkan — tambah pensyarah yang boleh mengajar, naikkan kuota, atau longgarkan sekatan hari/masa.`)];
-  valid.forEach(a=>{const r=state.rooms.find(x=>x.name===a.room),c=state.courses.find(x=>x.code===a.course);if(r&&c&&r.cap<c.cap)warns.push(`${a.course}-${a.grp}: bilik ${esc(r.name)} (${r.cap}) lebih kecil daripada kapasiti ${c.cap}.`)});
-  if(warns.length)o+=`<div style="background:var(--red-l);border-radius:8px;padding:10px 14px;margin-bottom:12px"><b>Perhatian</b><ul class="warnlist">${warns.map(w=>`<li>${w}</li>`).join('')}</ul></div>`;
-  o+=`<div class="row noprint" style="margin-bottom:12px">${[['kursus','Ikut kursus'],['grid','Jadual mingguan'],['pensyarah','Ikut pensyarah'],['bilik','Ikut bilik']].map(([k,l])=>`<button class="btn sm ${view===k?'pri':''}" onclick="view='${k}';renderJana()">${l}</button>`).join('')}</div>`;
-  const L=id=>lectById(id)?.name||'(dipadam)';
-  if(view==='kursus'){
-    o+='<div class="scroll"><table><tr><th>Kod</th><th>Kursus</th><th>Kump.</th><th>Pensyarah</th><th>Hari</th><th>Masa</th><th>Bilik</th></tr>';
-    state.courses.forEach(c=>{valid.filter(a=>a.course===c.code).sort((a,b)=>a.grp.length-b.grp.length||a.grp.localeCompare(b.grp)).forEach(a=>{
-      o+=`<tr><td>${esc(a.course)}</td><td>${esc(c.name)}</td><td><b>${a.grp}</b>${a.fixed?' <span class="tag warn">khas</span>':''}${isNew(a)?' <span class="tag bad">subjek baru</span>':''}</td><td>${esc(L(a.lec))}</td><td>${a.days.map(d=>DAYS[d]).join(' & ')}</td><td>${slotRange(a.s,a.len)}</td><td>${esc(a.room||'–')}</td></tr>`})});
-    o+='</table></div>';
-  }else if(view==='grid'){
-    o+=`<div class="row noprint" style="margin-bottom:8px"><span class="muted">Tapis:</span><select id="gf" onchange="filt=this.value;renderJana()" style="padding:5px;border-radius:5px;border:1px solid var(--line)"><option value="">Semua</option>
-      <optgroup label="Kursus">${state.courses.map(c=>`<option value="c:${esc(c.code)}" ${filt==='c:'+c.code?'selected':''}>${esc(c.code)}</option>`).join('')}</optgroup>
-      <optgroup label="Pensyarah">${state.lects.map(l=>`<option value="l:${l.id}" ${filt==='l:'+l.id?'selected':''}>${esc(l.name)}</option>`).join('')}</optgroup>
-      <optgroup label="Bilik">${state.rooms.map(r=>`<option value="r:${esc(r.name)}" ${filt==='r:'+r.name?'selected':''}>${esc(r.name)}</option>`).join('')}</optgroup></select></div>`;
-    const F=valid.filter(a=>!filt||(filt.startsWith('c:')&&a.course===filt.slice(2))||(filt.startsWith('l:')&&a.lec==filt.slice(2))||(filt.startsWith('r:')&&a.room===filt.slice(2)));
-    o+='<div class="grid"><table><tr><th>Masa</th>'+DAYS.map(d=>`<th>${d}</th>`).join('')+'</tr>';
-    state.slots.forEach((s,si)=>{o+=`<tr><td class="slot">${esc(s.label)}</td>`;
-      DAYS.forEach((d,di)=>{const here=F.filter(a=>a.days.includes(di)&&si>=a.s&&si<a.s+a.len);
-        o+='<td>'+here.map(a=>`<div class="cls ${a.fixed?'fixed':''}"><b>${esc(a.course)}-${a.grp}</b> <span class="m">${esc(a.room||'')}</span><br>${esc(L(a.lec))}</div>`).join('')+'</td>'});o+='</tr>'});
-    o+='</table></div>';
-  }else if(view==='pensyarah'){
-    o+='<div class="scroll"><table><tr><th>Pensyarah</th><th>Jenis</th><th>Diberi / Kuota</th><th>Kelas</th></tr>';
-    state.lects.forEach(l=>{const mine=valid.filter(a=>a.lec==l.id);const q=quotaOf(l);
-      o+=`<tr><td>${esc(l.name)}</td><td>${l.type}</td><td><span class="tag ${mine.length>q?'bad':mine.length<q?'warn':'ok'}">${mine.length} / ${q}</span></td><td>${mine.map(a=>`${esc(a.course)}-${a.grp} · ${a.days.map(d=>DAYS[d].slice(0,3)).join('/')} ${slotRange(a.s,a.len)} · ${esc(a.room||'')}`).join('<br>')||'<span class="muted">–</span>'}</td></tr>`});
-    o+='</table></div>';
-  }else{
-    o+='<div class="scroll"><table><tr><th>Bilik</th><th>Kapasiti</th><th>Penggunaan</th></tr>';
-    state.rooms.forEach(r=>{const mine=valid.filter(a=>a.room===r.name).sort((a,b)=>a.days[0]-b.days[0]||a.s-b.s);
-      o+=`<tr><td>${esc(r.name)}</td><td>${r.cap}</td><td>${mine.map(a=>`${a.days.map(d=>DAYS[d].slice(0,3)).join('/')} ${slotRange(a.s,a.len)} — ${esc(a.course)}-${a.grp} (${esc(L(a.lec))})`).join('<br>')||'<span class="muted">Kosong</span>'}</td></tr>`});
-    o+='</table></div>';
-  }
-  o+='</div>';document.getElementById('results').innerHTML=o;
-}
-function isNew(a){const l=lectById(a.lec);return !!(l&&l.prev&&l.prev.length&&!l.prev.includes(a.course))}
-function copyCSV(){const R=state.result;if(!R)return;const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
-  const lines=[['Kod','Kursus','Kumpulan','Pensyarah','Hari','Masa','Bilik','Permohonan khas','Subjek baru'].map(q).join(',')];
-  state.courses.forEach(c=>R.A.filter(a=>a.course===c.code).sort((a,b)=>a.grp.length-b.grp.length||a.grp.localeCompare(b.grp)).forEach(a=>lines.push([a.course,c.name,a.grp,lectById(a.lec)?.name||'',a.days.map(d=>DAYS[d]).join(' & '),slotRange(a.s,a.len),a.room||'',a.fixed?'Ya':'',isNew(a)?'Ya':''].map(q).join(','))));
-  copyText(lines.join('\n'),'CSV disalin — tampal dalam Excel')}
-
-/* IO */
-function openIO(){document.getElementById('io').classList.add('on')}
-function closeIO(){document.getElementById('io').classList.remove('on')}
-function applyLoaded(o){if(!o||!o.courses||!o.lects)throw 0;state=Object.assign(JSON.parse(JSON.stringify(DEFAULT)),o);state.result=null;save();renderAll();closeIO();toast('Data dimuat')}
-function loadJSON(){try{applyLoaded(JSON.parse(document.getElementById('taIO').value))}catch(e){toast('JSON tidak sah')}}
-function loadFile(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{applyLoaded(JSON.parse(r.result))}catch(e){toast('Fail tidak sah')}};r.readAsText(f)}
-function resetAll(){const b=document.getElementById('btnReset');if(!b){const m=document.createElement('div');m.className='modal on';m.id='rm';m.innerHTML='<div class="box"><h2 style="margin-top:0">Set semula semua data?</h2><p class="muted">Semua kursus, pensyarah, bilik dan jadual akan kembali kepada nilai asal. Salin JSON dahulu jika mahu simpan.</p><div class="row"><button class="btn del" id="btnReset">Ya, set semula</button><button class="btn" onclick="document.getElementById(\'rm\').remove()">Batal</button></div></div>';document.body.appendChild(m);
-  document.getElementById('btnReset').onclick=()=>{state=JSON.parse(JSON.stringify(DEFAULT));save();renderAll();m.remove();toast('Data diset semula')}}}
-
-function renderAll(){renderNav();renderCourses();renderTypes();renderLects();renderRooms();renderFixed();renderSettings();if(tab==='jana')renderJana()}
-load();renderAll();
-</script>
+    function loginPage(message=''){
+      document.querySelector('#topStatus').textContent='Admin access';
+      app.innerHTML=`<section class="login-card card"><div class="eyebrow" style="color:#007dc5">LGZ TEAM ACCESS</div><h1 style="margin-top:9px">Sign in to manage attendance</h1><p class="subhead">Use the administrator account created in Supabase.</p><form id="loginForm"><div class="field"><label>Email</label><input id="email" type="email" autocomplete="username" required placeholder="name@example.com" /></div><div class="field"><label>Password</label><input id="password" type="password" autocomplete="current-password" required placeholder="Your password" /></div><p class="message">${esc(message)}</p><button class="btn btn-primary" style="width:100%" type="submit">Sign in</button></form><p class="check-foot">Administrator accounts are managed by the LGZ system owner.</p></section>`;
+      document.querySelector('#loginForm').addEventListener('submit',async e=>{e.preventDefault();const {data,error}=await db.auth.signInWithPassword({email:document.querySelector('#email').value,password:document.querySelector('#password').value});if(error){loginPage('Sign-in failed. Check your email and password.');return;}adminUser=data.user;await dashboard();});
+    }
+    async function dashboard(){
+      if(!adminUser){const {data}=await db.auth.getSession();adminUser=data.session?.user||null;}
+      if(!adminUser){loginPage();return;}
+      const {data:allowed,error:accessError}=await db.rpc('is_lgz_admin');
+      if(accessError||!allowed){await db.auth.signOut();adminUser=null;loginPage('This account does not have LGZ administrator access.');return;}
+      document.querySelector('#topStatus').textContent='Admin dashboard';
+      app.innerHTML='<div class="container"><div id="workspace"></div><div class="footer">LINDUNG Gen-Z Leaders Camp 2026 · PERKESO × UUM SBM</div></div>';
+      await loadDashboard();
+    }
+    async function loadDashboard(){
+      const [p,s,a,c]=await Promise.all([
+        db.from('lgz_participants').select('id,participant_code,full_name,matric_no,gender,affiliation,university,email,phone,confirmation_status,confirmation_at,created_at').order('full_name'),
+        db.from('lgz_sessions').select('*').order('created_at',{ascending:false}),
+        db.from('lgz_attendance_view').select('*').order('checked_in_at',{ascending:false}),
+      ]);
+      if(p.error||s.error||a.error){toast('Could not load records. Check the Supabase setup and access policies.');return;}
+      roster=p.data||[];sessions=s.data||[];attendance=a.data||[];confirmations=roster.filter(p=>p.confirmation_status);renderWorkspace();
+    }
+    function sessionIsActive(row){const now=Date.now();return row.is_open&&now>=new Date(row.starts_at).getTime()&&now<=new Date(row.closes_at).getTime();}
+    function countsBySession(){const counts={};attendance.forEach(x=>counts[x.session_id]=(counts[x.session_id]||0)+1);return counts;}
+    function renderWorkspace(){
+      const area=document.querySelector('#workspace');if(!area)return;
+      if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null;}
+      const active=sessions.find(sessionIsActive),counts=countsBySession();
+      const title=currentSection==='home'?'Attendance dashboard':modules.find(x=>x.id===currentSection)?.title||'Attendance dashboard';
+      area.innerHTML=`<div class="page-head"><div><div class="eyebrow" style="color:#007dc5">LGZ 2026 · PROGRAMME CONTROL</div><h1>${esc(title)}</h1><p class="subhead">Manage check-ins and attendance records for every camp activity.</p></div><div class="actions"><button class="btn btn-secondary" id="importBtn">＋ Import roster</button><button class="btn btn-primary" id="newSessionBtn">＋ New activity QR</button><button class="btn btn-secondary" id="signOutBtn">Sign out</button></div></div>${currentSection==='home'?homeView(counts,active):moduleNav()+moduleView(counts,active)}`;
+      document.querySelector('#importBtn').onclick=importModal;document.querySelector('#newSessionBtn').onclick=createSessionModal;document.querySelector('#signOutBtn').onclick=async()=>{await db.auth.signOut();adminUser=null;loginPage();};
+      if(currentSection==='home')bindHome();else bindModule();
+    }
+    function homeView(counts,active){
+      return `<div class="welcome"><div class="eyebrow">PERKESO × UUM SBM</div><h2>Assalamualaikum, LGZ team</h2><p>Choose a section to manage the camp attendance system.</p></div><section class="grid stats"><div class="card stat"><div class="stat-label">Registered participants</div><div class="stat-value">${roster.length}</div><div class="stat-note">In the LGZ roster</div></div><div class="card stat"><div class="stat-label">Attendance entries</div><div class="stat-value">${attendance.length}</div><div class="stat-note">Across all activities</div></div><div class="card stat"><div class="stat-label">Activities tracked</div><div class="stat-value">${sessions.length}</div><div class="stat-note">QR attendance sessions</div></div><div class="card stat"><div class="stat-label">Live session</div><div class="stat-value">${active?'1':'0'}</div><div class="stat-note">${active?esc(active.activity_label):'No open check-in window'}</div></div></section><section class="grid feature-grid">${modules.map(m=>`<button class="feature-card" data-go="${m.id}"><span class="feature-icon">${m.icon}</span><span><strong>${m.title}</strong><small>${m.desc}</small></span></button>`).join('')}</section>`;
+    }
+    function moduleNav(){return `<nav class="module-nav"><button class="btn btn-secondary" data-go="home">← Dashboard</button>${modules.map(m=>`<button class="btn ${m.id===currentSection?'active':'btn-secondary'}" data-go="${m.id}">${m.title}</button>`).join('')}</nav>`;}
+    function moduleView(counts,active){
+      if(currentSection==='live')return liveView(counts,active);
+      if(currentSection==='records')return recordsView();
+      if(currentSection==='history')return historyView();
+      if(currentSection==='reports')return reportsView(counts);
+      if(currentSection==='sessions')return sessionsView(counts);
+      if(currentSection==='directory')return directoryView();
+      if(currentSection==='confirmations')return confirmationsView();
+      return homeView(counts,active);
+    }
+    function confirmationsView(){
+      const attending=confirmations.filter(x=>x.confirmation_status==='attending').length,cannot=confirmations.filter(x=>x.confirmation_status==='cannot_attend').length,unsure=confirmations.filter(x=>x.confirmation_status==='unsure').length;
+      const displayedRoster=confirmationAttendingOnly?roster.filter(p=>p.confirmation_status==='attending'):roster;
+      const reportLabel=confirmationAttendingOnly?'Confirmed can attend':'All participants';
+      return `<section class="grid stats"><div class="card stat"><div class="stat-label">Responses received</div><div class="stat-value">${confirmations.length}</div><div class="stat-note">Of ${roster.length} registered participants</div></div><div class="card stat"><div class="stat-label">Can attend</div><div class="stat-value">${attending}</div><div class="stat-note">Confirmed attending</div></div><div class="card stat"><div class="stat-label">Cannot attend</div><div class="stat-value">${cannot}</div><div class="stat-note">Reported unavailable</div></div><div class="card stat"><div class="stat-label">Not sure</div><div class="stat-value">${unsure}</div><div class="stat-note">Need follow-up</div></div></section><section class="card panel"><div class="panel-head"><div><h2>Programme attendance confirmation</h2><div class="section-kicker">Share the RSVP link through WhatsApp. This list updates when you refresh.</div></div><div class="actions"><button class="btn btn-secondary" id="refreshConfirmations">↻ Refresh</button><button class="btn btn-secondary" id="copyConfirmationLink">Copy participant form link</button><button class="btn btn-secondary" id="toggleAttending">${confirmationAttendingOnly?'Show full roster':`Show confirmed attendees (${attending})`}</button><button class="btn btn-secondary" id="printConfirmations">Print report</button><button class="btn btn-primary" id="exportConfirmations">Download CSV</button></div></div><div class="note">Participant confirmation is separate from QR check-ins. The QR records actual attendance at each activity.</div><div class="print-only"><h2>LGZ 2026 · Programme attendance confirmation report</h2><p>View: ${reportLabel} · Printed: ${dateFmt(new Date())} · ${displayedRoster.length} participant(s)</p></div><div class="table-wrap"><table><thead><tr><th>Participant ID</th><th>Matric No.</th><th>Name</th><th>University</th><th>Response</th><th>Submitted</th></tr></thead><tbody>${displayedRoster.length?displayedRoster.map(p=>`<tr><td>${esc(p.participant_code)}</td><td>${esc(p.matric_no)}</td><td>${esc(p.full_name)}</td><td>${esc(p.university||p.affiliation)}</td><td>${p.confirmation_status?`<span class="status ${p.confirmation_status==='attending'?'status-active':'status-closed'}">${p.confirmation_status==='attending'?'Can attend':p.confirmation_status==='cannot_attend'?'Cannot attend':'Not sure'}</span>`:'<span class="subcell">No response</span>'}</td><td>${p.confirmation_at?dateFmt(p.confirmation_at):'—'}</td></tr>`).join(''):`<tr><td colspan="6" class="empty">${confirmationAttendingOnly?'No participants have confirmed that they can attend yet.':'No participants are in the roster yet.'}</td></tr>`}</tbody></table></div></section>`;
+    }
+    function liveView(counts,active){
+      const rows=active?attendance.filter(x=>x.session_id===active.id):[];
+      return `<section class="grid stats"><div class="card stat"><div class="stat-label">Open session</div><div class="stat-value">${active?'1':'0'}</div><div class="stat-note">${active?esc(active.activity_label):'No live check-in'}</div></div><div class="card stat"><div class="stat-label">Check-ins now</div><div class="stat-value">${rows.length}</div><div class="stat-note">For the current activity</div></div><div class="card stat"><div class="stat-label">Roster size</div><div class="stat-value">${roster.length}</div><div class="stat-note">Registered participants</div></div><div class="card stat"><div class="stat-label">Last refreshed</div><div class="stat-value" style="font-size:15px">${dateFmt(new Date())}</div><div class="stat-note">Select Refresh to update counts</div></div></section><section class="card panel"><div class="panel-head"><div><h2>Live attendance</h2><div class="section-kicker">Open the session QR and watch check-ins arrive.</div></div><button class="btn btn-secondary" id="refreshBtn">↻ Refresh</button></div>${active?`<div class="current"><div class="current-row"><div><div class="live-label"><span class="live-dot"></span>LIVE CHECK-IN</div><h3>${esc(active.activity_label)}</h3><div class="current-meta">${rows.length} check-ins · Closes ${dateFmt(active.closes_at)}</div></div><div style="text-align:right"><div class="eyebrow">PRESENT</div><div style="font:800 25px Manrope;margin-top:6px">${rows.length}</div></div></div><div class="current-actions"><button class="btn btn-secondary" data-qr="${active.id}">Show QR code</button><button class="btn btn-secondary" data-close="${active.id}">Close check-in</button></div></div>`:'<p class="note">There is no open session. Select <b>New activity QR</b> to start check-in for an activity.</p>'}<div class="table-wrap"><table><thead><tr><th>Participant ID</th><th>Name</th><th>Affiliation</th><th>Checked in</th></tr></thead><tbody>${rows.length?rows.map(x=>`<tr><td>${esc(x.participant_code)}</td><td>${esc(x.full_name)}</td><td>${esc(x.affiliation)}</td><td>${dateFmt(x.checked_in_at)}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">No check-ins recorded for this session yet.</td></tr>'}</tbody></table></div></section>`;
+    }
+    function recordsView(){
+      return `<section class="card panel"><div class="panel-head"><div><h2>All attendance records</h2><div class="section-kicker">Search across check-ins from every activity.</div></div><button class="btn btn-secondary" id="exportRecordsBtn">⇩ Export CSV</button></div><div class="toolbar"><input id="recordSearch" placeholder="Search name, ID, matric, university or activity" /><select id="recordSession"><option value="">All activities</option>${sessions.map(s=>`<option value="${s.id}">${esc(s.activity_label)}</option>`).join('')}</select></div><div class="table-wrap"><table><thead><tr><th>Participant ID</th><th>Matric No.</th><th>Name</th><th>Gender</th><th>University</th><th>Activity</th><th>Checked in</th></tr></thead><tbody id="recordRows"></tbody></table></div></section><p class="note">This view is read-only. To fix a mistake in an attendance record, contact the LGZ system administrator.</p>`;
+    }
+    function historyView(){
+      return `<section class="card panel"><div class="panel-head"><div><h2>Participant attendance history</h2><div class="section-kicker">Search by participant name or ID.</div></div></div><div class="toolbar"><input id="historySearch" placeholder="Type a name or participant code" /></div><div id="historyResults"><p class="empty">Enter a name or ID to view attendance history.</p></div></section>`;
+    }
+    function reportsView(counts){
+      return `<section class="card panel"><div class="panel-head"><div><h2>Activity attendance report</h2><div class="section-kicker">Select an activity to review attendance and prepare a report.</div></div><div class="actions"><button class="btn btn-secondary" id="printReportBtn">Print / Save PDF</button><button class="btn btn-primary" id="reportCsvBtn">Download CSV</button></div></div><div class="toolbar"><select id="reportSession"><option value="">Select an activity</option>${sessions.map(s=>`<option value="${s.id}">${esc(s.activity_label)}</option>`).join('')}</select></div><div id="reportOutput"><p class="empty">Choose an activity to display its attendance report.</p></div></section><p class="note">To save as PDF, select <b>Print / Save PDF</b>, then choose <b>Save as PDF</b> in your browser’s print window.</p>`;
+    }
+    function sessionsView(counts){
+      return `<section class="card panel"><div class="panel-head"><div><h2>Activity sessions</h2><div class="section-kicker">Create one QR check-in session for each camp activity.</div></div><div class="actions"><button class="btn btn-secondary" id="refreshBtn">↻ Refresh</button><button class="btn btn-primary" id="sessionNewBtn">＋ New activity QR</button></div></div><div class="table-wrap"><table><thead><tr><th>Activity</th><th>Check-ins</th><th>Window</th><th>Status</th><th>Actions</th></tr></thead><tbody>${sessions.length?sessions.map(row=>{const active=sessionIsActive(row);return `<tr><td><div class="session-name">${esc(row.activity_label)}</div><div class="subcell">${dateFmt(row.starts_at)}</div></td><td><button class="text-btn" data-report="${row.id}">${counts[row.id]||0} · View records</button></td><td>${esc(row.duration_label||'—')}</td><td><span class="status ${active?'status-active':'status-closed'}">${active?'Open':row.is_open?'Expired':'Closed'}</span></td><td>${active?`<button class="text-btn" data-qr="${row.id}">Show QR</button> · <button class="text-btn" data-close="${row.id}">Close</button>`:'<span class="subcell">—</span>'}</td></tr>`;}).join(''):'<tr><td colspan="5" class="empty">No activity sessions yet. Create the first QR when you are ready.</td></tr>'}</tbody></table></div></section>`;
+    }
+    function directoryView(){
+      const affiliations=[...new Set(roster.map(x=>x.university||x.affiliation).filter(Boolean))].sort();
+      return `<section class="card panel"><div class="panel-head"><div><h2>Participant directory</h2><div class="section-kicker">${roster.length} registered participant${roster.length===1?'':'s'} · search and update the roster.</div></div><div class="actions"><button class="btn btn-secondary" id="directoryTemplateBtn">Download template</button><button class="btn btn-primary" id="addParticipantBtn">＋ Add participant</button></div></div><div class="toolbar"><input id="directorySearch" placeholder="Search name, matric no., email or phone" /><select id="directoryAffiliation"><option value="">All universities</option>${affiliations.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select></div><div class="table-wrap"><table><thead><tr><th>Participant ID</th><th>Full name</th><th>Matric No.</th><th>Gender</th><th>Email</th><th>Phone</th><th>University</th><th>Action</th></tr></thead><tbody id="directoryRows"></tbody></table></div></section><p class="note">Contact details are visible to signed-in LGZ administrators in this directory only. They are not shown on the public participant QR check-in page.</p>`;
+    }
+    function bindHome(){document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>navigate(b.dataset.go));}
+    function bindModule(){
+      document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>navigate(b.dataset.go));
+      if(currentSection==='live'){document.querySelector('#refreshBtn').onclick=loadDashboard;bindSessionButtons();refreshTimer=setInterval(loadDashboard,12000);}
+      if(currentSection==='records'){document.querySelector('#recordSearch').oninput=renderRecords;document.querySelector('#recordSession').onchange=renderRecords;document.querySelector('#exportRecordsBtn').onclick=()=>exportRows(filteredAttendance());renderRecords();}
+      if(currentSection==='history'){document.querySelector('#historySearch').oninput=renderHistory;}
+      if(currentSection==='reports'){document.querySelector('#reportSession').onchange=renderReport;document.querySelector('#reportCsvBtn').onclick=()=>exportRows(reportAttendance());document.querySelector('#printReportBtn').onclick=()=>window.print();}
+      if(currentSection==='sessions'){document.querySelector('#refreshBtn').onclick=loadDashboard;document.querySelector('#sessionNewBtn').onclick=createSessionModal;bindSessionButtons();}
+      if(currentSection==='directory'){document.querySelector('#directorySearch').oninput=renderDirectory;document.querySelector('#directoryAffiliation').onchange=renderDirectory;document.querySelector('#directoryTemplateBtn').onclick=()=>download('lgz-roster-template.csv','Nama penuh,No. matrik,Jantina,E-mel,No. telefon,Universiti\nContoh Peserta,000000,Lelaki,,,UUM\n');document.querySelector('#addParticipantBtn').onclick=()=>participantModal();renderDirectory();}
+      if(currentSection==='confirmations'){document.querySelector('#refreshConfirmations').onclick=loadDashboard;document.querySelector('#copyConfirmationLink').onclick=async()=>{const link=new URL(location.href);link.search='';link.searchParams.set('confirm','1');await navigator.clipboard.writeText(link.href);toast('Participant confirmation link copied.');};document.querySelector('#toggleAttending').onclick=()=>{confirmationAttendingOnly=!confirmationAttendingOnly;renderWorkspace();};document.querySelector('#printConfirmations').onclick=()=>window.print();document.querySelector('#exportConfirmations').onclick=()=>{const rows=[['participant_code','matric_no','full_name','university','confirmation_status','confirmation_at'],...roster.map(p=>[p.participant_code,p.matric_no,p.full_name,p.university||p.affiliation,p.confirmation_status||'no_response',p.confirmation_at||''])];download('lgz-2026-participant-confirmations.csv',rows.map(row=>row.map(csvCell).join(',')).join('\r\n'));};}
+    }
+    async function navigate(section){currentSection=section;await loadDashboard();}
+    function bindSessionButtons(){document.querySelectorAll('[data-qr]').forEach(b=>b.onclick=()=>showQr(sessions.find(x=>x.id===b.dataset.qr)));document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeSession(b.dataset.close));document.querySelectorAll('[data-report]').forEach(b=>b.onclick=()=>{currentSection='records';loadDashboard().then(()=>{document.querySelector('#recordSession').value=b.dataset.report;renderRecords();});});}
+    function filteredAttendance(){const q=(document.querySelector('#recordSearch')?.value||'').toLowerCase().trim(),sid=document.querySelector('#recordSession')?.value||'';return attendance.filter(x=>(!sid||x.session_id===sid)&&(!q||[x.participant_code,x.matric_no,x.full_name,x.gender,x.university,x.affiliation,x.activity_label].some(v=>String(v||'').toLowerCase().includes(q))));}
+    function renderRecords(){const rows=filteredAttendance();const target=document.querySelector('#recordRows');if(target)target.innerHTML=rows.length?rows.map(x=>`<tr><td>${esc(x.participant_code)}</td><td>${esc(x.matric_no)}</td><td>${esc(x.full_name)}</td><td>${esc(x.gender)}</td><td>${esc(x.university||x.affiliation)}</td><td>${esc(x.activity_label)}</td><td>${dateFmt(x.checked_in_at)}</td></tr>`).join(''):'<tr><td colspan="7" class="empty">No matching attendance records.</td></tr>';}
+    function renderHistory(){const q=(document.querySelector('#historySearch').value||'').toLowerCase().trim(),box=document.querySelector('#historyResults');if(!q){box.innerHTML='<p class="empty">Enter a name, participant ID or matric number to view attendance history.</p>';return;}const matches=roster.filter(p=>[p.participant_code,p.matric_no,p.full_name,p.university,p.affiliation].some(v=>String(v||'').toLowerCase().includes(q)));if(!matches.length){box.innerHTML='<p class="empty">No participant matches that search.</p>';return;}box.innerHTML=matches.slice(0,30).map(p=>{const rows=attendance.filter(a=>a.participant_code===p.participant_code);return `<div class="panel-head" style="margin-top:14px"><div><h2>${esc(p.full_name)}</h2><div class="section-kicker">${esc(p.participant_code)} · Matric ${esc(p.matric_no)} · ${esc(p.university||p.affiliation)}</div></div><span class="status status-closed">${rows.length} check-ins</span></div><div class="table-wrap"><table><thead><tr><th>Activity</th><th>Checked in</th></tr></thead><tbody>${rows.length?rows.map(a=>`<tr><td>${esc(a.activity_label)}</td><td>${dateFmt(a.checked_in_at)}</td></tr>`).join(''):'<tr><td colspan="2" class="empty">No attendance history yet.</td></tr>'}</tbody></table></div>`;}).join('');}
+    function reportAttendance(){const id=document.querySelector('#reportSession')?.value;return attendance.filter(x=>x.session_id===id);}
+    function renderReport(){const id=document.querySelector('#reportSession').value,out=document.querySelector('#reportOutput');if(!id){out.innerHTML='<p class="empty">Choose an activity to display its attendance report.</p>';return;}const s=sessions.find(x=>x.id===id),rows=reportAttendance(),present=new Set(rows.map(x=>x.participant_code)).size,rate=roster.length?Math.round(present/roster.length*100):0;out.innerHTML=`<div class="metric-row"><div class="metric"><small>Activity</small><strong style="font-size:14px">${esc(s?.activity_label)}</strong></div><div class="metric"><small>Participants checked in</small><strong>${present} / ${roster.length}</strong></div><div class="metric"><small>Roster attendance</small><strong>${rate}%</strong></div></div><div class="table-wrap"><table><thead><tr><th>Participant ID</th><th>Matric No.</th><th>Name</th><th>Gender</th><th>University</th><th>Check-in time</th></tr></thead><tbody>${rows.length?rows.map(x=>`<tr><td>${esc(x.participant_code)}</td><td>${esc(x.matric_no)}</td><td>${esc(x.full_name)}</td><td>${esc(x.gender)}</td><td>${esc(x.university||x.affiliation)}</td><td>${dateFmt(x.checked_in_at)}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No check-ins recorded for this activity.</td></tr>'}</tbody></table></div>`;}
+    function renderDirectory(){const q=(document.querySelector('#directorySearch').value||'').toLowerCase().trim(),aff=document.querySelector('#directoryAffiliation').value;const rows=roster.filter(p=>(!aff||(p.university||p.affiliation)===aff)&&(!q||[p.participant_code,p.full_name,p.matric_no,p.gender,p.email,p.phone,p.university,p.affiliation].some(v=>String(v||'').toLowerCase().includes(q))));document.querySelector('#directoryRows').innerHTML=rows.length?rows.map(p=>`<tr><td>${esc(p.participant_code)}</td><td>${esc(p.full_name)}</td><td>${esc(p.matric_no)}</td><td>${esc(p.gender)}</td><td>${esc(p.email)}</td><td>${esc(p.phone)}</td><td>${esc(p.university||p.affiliation)}</td><td><button class="text-btn" data-edit="${p.id}">Edit</button></td></tr>`).join(''):'<tr><td colspan="8" class="empty">No participants match that search.</td></tr>';document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>participantModal(roster.find(p=>p.id===b.dataset.edit)));}
+    function participantModal(person=null){
+      modalRoot.innerHTML=`<div class="modal-backdrop"><div class="modal card"><div class="modal-head"><h2>${person?'Edit participant':'Add participant'}</h2><button class="close" data-close>×</button></div><form id="participantForm"><div class="field"><label>Participant ID (optional if matric number is entered)</label><input name="code" maxlength="40" value="${esc(person?.participant_code||'')}" placeholder="Leave blank to use the matric number" /></div><div class="field"><label>Full name</label><input name="name" required maxlength="160" value="${esc(person?.full_name||'')}" /></div><div class="field"><label>Matric number</label><input name="matric" required maxlength="40" value="${esc(person?.matric_no||'')}" /></div><div class="field"><label>Gender</label><select name="gender"><option value="">Select gender</option><option ${person?.gender==='Lelaki'?'selected':''}>Lelaki</option><option ${person?.gender==='Perempuan'?'selected':''}>Perempuan</option></select></div><div class="field"><label>Email address</label><input name="email" type="email" maxlength="254" value="${esc(person?.email||'')}" /></div><div class="field"><label>Phone number</label><input name="phone" type="tel" maxlength="30" value="${esc(person?.phone||'')}" /></div><div class="field"><label>University / institution</label><input name="university" required maxlength="100" value="${esc(person?.university||person?.affiliation||'')}" placeholder="UUM, UTeM or MiCoST" /></div><p class="message" id="participantMessage"></p><button class="btn btn-primary" style="width:100%">Save participant</button></form></div></div>`;
+      modalRoot.querySelector('[data-close]').onclick=()=>modalRoot.innerHTML='';modalRoot.querySelector('.modal-backdrop').onclick=e=>{if(e.target===e.currentTarget)modalRoot.innerHTML='';};
+      modalRoot.querySelector('#participantForm').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget),matric=String(f.get('matric')||'').trim(),code=String(f.get('code')||'').trim()||matric,university=String(f.get('university')||'').trim(),record={participant_code:code,full_name:String(f.get('name')).trim(),matric_no:matric,gender:String(f.get('gender')||''),affiliation:university,university,email:String(f.get('email')||'').trim()||null,phone:String(f.get('phone')||'').trim()||null};const query=person?db.from('lgz_participants').update(record).eq('id',person.id):db.from('lgz_participants').insert(record);const {error}=await query;if(error){modalRoot.querySelector('#participantMessage').textContent='Could not save. Check that the matric number and participant ID are unique, and that the database update has been applied.';return;}modalRoot.innerHTML='';toast('Participant saved.');await loadDashboard();};
+    }
+    function createSessionModal(){
+      modalRoot.innerHTML=`<div class="modal-backdrop"><div class="modal card"><div class="modal-head"><h2>Start an activity check-in</h2><button class="close" data-close>×</button></div><p class="subhead">A unique QR code will be created for this activity. Only one session can be open at a time.</p><form id="sessionForm"><div class="field"><label>Activity name</label><input required name="activity" maxlength="100" placeholder="e.g. Inclusive Games: Blindfold Challenge" /></div><div class="field"><label>Check-in window</label><select name="minutes"><option value="30">30 minutes</option><option value="60" selected>1 hour</option><option value="120">2 hours</option><option value="360">6 hours</option><option value="720">12 hours</option><option value="1440">24 hours</option></select></div><p class="message" id="modalMessage"></p><button class="btn btn-primary" style="width:100%">Create activity QR</button></form></div></div>`;
+      modalRoot.querySelector('[data-close]').onclick=()=>modalRoot.innerHTML='';modalRoot.querySelector('.modal-backdrop').onclick=e=>{if(e.target===e.currentTarget)modalRoot.innerHTML='';};
+      modalRoot.querySelector('#sessionForm').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget),minutes=Number(f.get('minutes')),now=new Date(),end=new Date(now.getTime()+minutes*60000),token=crypto.randomUUID()+crypto.randomUUID();await db.from('lgz_sessions').update({is_open:false}).eq('is_open',true);const {data,error}=await db.from('lgz_sessions').insert({activity_label:String(f.get('activity')).trim(),qr_token:token,is_open:true,starts_at:now.toISOString(),closes_at:end.toISOString(),duration_label:minutes<60?`${minutes} min`:minutes<1440?`${minutes/60} hour${minutes>60?'s':''}`:'24 hours',created_by:adminUser.id}).select().single();if(error){modalRoot.querySelector('#modalMessage').textContent='Could not create this session. Check the database setup.';return;}modalRoot.innerHTML='';currentSection='live';await loadDashboard();showQr(data);};
+    }
+    function showQr(session){
+      if(!session)return;const link=new URL(location.href);link.search='';link.searchParams.set('session',session.id);link.searchParams.set('token',session.qr_token);
+      modalRoot.innerHTML=`<div class="modal-backdrop"><div class="modal card"><div class="modal-head"><h2>Activity QR code</h2><button class="close" data-close>×</button></div><div class="eyebrow" style="color:#007dc5">${esc(session.activity_label)}</div><div class="qr-box" id="qr"></div><div class="url-box">${esc(link.href)}</div><div class="actions" style="margin-top:15px"><button class="btn btn-primary" id="downloadQr">Download QR image</button><button class="btn btn-secondary" id="copyLink">Copy check-in link</button></div><p class="check-foot">Display this QR at the activity. Participants scan it and enter their LGZ participant ID or matric number. The QR expires when the window closes.</p></div></div>`;
+      modalRoot.querySelector('[data-close]').onclick=()=>modalRoot.innerHTML='';modalRoot.querySelector('.modal-backdrop').onclick=e=>{if(e.target===e.currentTarget)modalRoot.innerHTML='';};
+      QRCode.toCanvas(link.href,{width:220,margin:2,errorCorrectionLevel:'H',color:{dark:'#071b3c',light:'#ffffff'}},(err,canvas)=>{if(!err&&document.querySelector('#qr'))document.querySelector('#qr').append(canvas);});
+      modalRoot.querySelector('#downloadQr').onclick=()=>{const c=modalRoot.querySelector('#qr canvas');if(!c)return;const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download=`LGZ-${session.activity_label.replace(/[^a-z0-9]+/gi,'-').slice(0,35)}-QR.png`;a.click();};
+      modalRoot.querySelector('#copyLink').onclick=async()=>{await navigator.clipboard.writeText(link.href);toast('Check-in link copied.');};
+    }
+    async function closeSession(id){if(!confirm('Close this activity check-in now? The QR will stop accepting attendance.'))return;const {error}=await db.from('lgz_sessions').update({is_open:false}).eq('id',id);if(error)toast('Could not close this session.');else{toast('Check-in closed.');await loadDashboard();}}
+    async function attendanceModal(sessionId,title){const rows=attendance.filter(x=>x.session_id===sessionId);modalRoot.innerHTML=`<div class="modal-backdrop"><div class="modal card" style="width:min(720px,100%)"><div class="modal-head"><div><h2>${esc(title)}</h2><div class="section-kicker">${rows.length} participant check-ins</div></div><button class="close" data-close>×</button></div><div class="table-wrap"><table><thead><tr><th>Participant ID</th><th>Name</th><th>Affiliation</th><th>Checked in</th></tr></thead><tbody>${rows.length?rows.map(x=>`<tr><td>${esc(x.participant_code)}</td><td>${esc(x.full_name)}</td><td>${esc(x.affiliation)}</td><td>${dateFmt(x.checked_in_at)}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">No check-ins recorded for this activity.</td></tr>'}</tbody></table></div></div></div>`;modalRoot.querySelector('[data-close]').onclick=()=>modalRoot.innerHTML='';modalRoot.querySelector('.modal-backdrop').onclick=e=>{if(e.target===e.currentTarget)modalRoot.innerHTML='';};}
+    function importModal(){
+      modalRoot.innerHTML=`<div class="modal-backdrop"><div class="modal card"><div class="modal-head"><h2>Import participant roster</h2><button class="close" data-close>×</button></div><p class="subhead">Upload the participant columns: <b>Nama penuh, No. matrik, Jantina, E-mel, No. telefon, Universiti</b>. Participant ID is optional; existing people are matched by matric number.</p><div class="field"><label>Participant CSV file</label><input type="file" id="rosterFile" accept=".csv,text/csv" /></div><p class="message" id="modalMessage"></p><button class="btn btn-primary" id="uploadRoster" style="width:100%">Import roster</button><button class="btn btn-secondary" id="templateCsv" style="width:100%;margin-top:9px">Download CSV template</button></div></div>`;
+      modalRoot.querySelector('[data-close]').onclick=()=>modalRoot.innerHTML='';modalRoot.querySelector('.modal-backdrop').onclick=e=>{if(e.target===e.currentTarget)modalRoot.innerHTML='';};
+      modalRoot.querySelector('#templateCsv').onclick=()=>download('lgz-roster-template.csv','Nama penuh,No. matrik,Jantina,E-mel,No. telefon,Universiti\nContoh Peserta,000000,Lelaki,,,UUM\n');
+      modalRoot.querySelector('#uploadRoster').onclick=async()=>{const file=modalRoot.querySelector('#rosterFile').files[0];if(!file){modalRoot.querySelector('#modalMessage').textContent='Choose a CSV file first.';return;}try{const rows=parseCsv(await file.text()),normalise=h=>h.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,''),headers=rows.shift().map(normalise),col=(...aliases)=>headers.findIndex(h=>aliases.includes(h)),ci=col('participantcode','participantid','kodpeserta'),ni=col('fullname','namapenuh','nama'),mi=col('matricno','nomatrik','nombormatrik','matrik'),gi=col('gender','jantina'),ei=col('email','emel'),pi=col('phone','phoneno','notelefon','nombortelefon','telephone'),ui=col('university','universiti','affiliation','institution');if(ni<0||mi<0)throw Error('The CSV must contain a full name and matric number column.');const existingByCode=new Map(roster.map(p=>[String(p.participant_code||'').toLowerCase(),p])),existingByMatric=new Map(roster.filter(p=>p.matric_no).map(p=>[String(p.matric_no).toLowerCase(),p]));const batch=rows.filter(r=>r[ni]?.trim()&&r[mi]?.trim()).map(r=>{const matric=r[mi].trim(),matched=existingByMatric.get(matric.toLowerCase()),typedCode=ci>=0?(r[ci]||'').trim():'',code=typedCode||matched?.participant_code||matric,existing=existingByCode.get(code.toLowerCase())||matched,university=ui>=0?(r[ui]||'').trim():(existing?.university||existing?.affiliation||''),email=ei>=0?(r[ei]||'').trim():(existing?.email||''),phone=pi>=0?(r[pi]||'').trim():(existing?.phone||'');return{participant_code:code,full_name:r[ni].trim(),matric_no:matric,gender:gi>=0?(r[gi]||'').trim():(existing?.gender||''),affiliation:university,university,email:email||existing?.email||null,phone:phone||existing?.phone||null};});if(!batch.length)throw Error('No participant rows with both name and matric number were found.');for(let i=0;i<batch.length;i+=300){const {error}=await db.from('lgz_participants').upsert(batch.slice(i,i+300),{onConflict:'participant_code'});if(error)throw Error('Import failed. Check duplicate participant IDs or matric numbers and confirm the database update has been applied.');}modalRoot.innerHTML='';toast(`${batch.length} participant records imported.`);await loadDashboard();}catch(err){modalRoot.querySelector('#modalMessage').textContent=err.message;}};
+    }
+    function exportRows(rows){const records=[['participant_code','matric_no','full_name','gender','university','activity','checked_in_at'],...rows.map(x=>[x.participant_code,x.matric_no,x.full_name,x.gender,x.university||x.affiliation,x.activity_label,x.checked_in_at])];download('lgz-2026-attendance.csv',records.map(row=>row.map(csvCell).join(',')).join('\r\n'));toast(`${rows.length} attendance records exported.`);}
+    function parseCsv(text){const rows=[];let row=[],cell='',quoted=false;for(let i=0;i<text.length;i++){const ch=text[i];if(quoted){if(ch==='"'&&text[i+1]==='"'){cell+='"';i++;}else if(ch==='"')quoted=false;else cell+=ch;}else if(ch==='"')quoted=true;else if(ch===','){row.push(cell);cell='';}else if(ch==='\n'){row.push(cell.replace(/\r$/,''));rows.push(row);row=[];cell='';}else cell+=ch;}if(cell.length||row.length){row.push(cell.replace(/\r$/,''));rows.push(row);}return rows.filter(r=>r.some(v=>v.trim()));}
+    const csvCell=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+    function download(name,text){const blob=new Blob([text],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
+    const routeParams=new URLSearchParams(location.search);if(routeParams.has('session'))checkInPage();else if(routeParams.has('confirm'))confirmationPage();else dashboard();
+  </script>
 </body>
 </html>
