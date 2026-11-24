@@ -94,6 +94,13 @@ textarea{width:100%;font:13px/1.4 ui-monospace,Consolas,monospace;padding:8px;bo
       <button class="btn sm pri" onclick="importCourses()">Import</button>
     </div>
   </div>
+
+  <div class="card" style="margin-top:-4px">
+    <h2>Kelas PG &amp; program lain (di luar jadual BBA UG)</h2>
+    <p class="h">Setiap baris = satu kelas/paper yang diajar pensyarah di luar jadual BBA UG — kursus PG, atau kursus program lain (cth. Bachelor of Philosophy, Law and Business). Slot ini <b>dikira dalam kuota</b> (kuota UG = kuota − slot ini) dan dalam beban tahunan. Kelas ini tidak dijadualkan oleh sistem.</p>
+    <table id="tblPG"></table>
+    <div class="row" style="margin-top:10px"><button class="btn sm" onclick="addPG()">+ Tambah kelas PG / program lain</button></div>
+  </div>
 </section>
 
 <!-- PENSYARAH -->
@@ -168,7 +175,7 @@ BK 3 ; 60"></textarea>
     </div>
     <div class="row" style="margin:12px 0">
       <label class="muted">Semester semasa <input id="curSem" style="width:70px;padding:5px;border:1px solid var(--line);border-radius:5px" onchange="state.cur=this.value.trim().toUpperCase();save();renderBeban()"></label>
-      <label class="muted">Sasaran slot setahun <input id="yearTgt" type="number" style="width:60px;padding:5px;border:1px solid var(--line);border-radius:5px" onchange="state.yearTarget=+this.value;save();renderBeban()"></label>
+      <span class="muted">Sasaran setahun ikut <b>jenis pensyarah</b> (ubah di tab 2 · Pensyarah), atau isi lajur Sasaran untuk individu.</span>
       <label class="muted">Susun <select id="loadSort" onchange="renderBeban()" style="padding:5px;border:1px solid var(--line);border-radius:5px"><option value="name">Nama</option><option value="low">Paling kurang dahulu</option><option value="high">Paling lebih dahulu</option></select></label>
     </div>
     <div id="bebanKpi"></div>
@@ -265,7 +272,7 @@ let state; let tab='kursus';
 const TABS=[['kursus','1 · Kursus'],['pensyarah','2 · Pensyarah'],['bilik','3 · Bilik'],['khas','4 · Permohonan Khas'],['jana','5 · Jana & Jadual'],['beban','6 · Beban Tahunan (KPI)'],['tetapan','Tetapan Masa']];
 
 function load(){try{const s=localStorage.getItem('bbaSched_A262');if(s){state=JSON.parse(s);if(!state.ver||state.ver<2){const D=JSON.parse(JSON.stringify(DEFAULT));state.slots=D.slots;state.patterns=D.patterns;state.rooms=D.rooms;state.ver=2;state.result=null;state.lects.forEach(l=>l.patterns=l.patterns.filter(x=>x==='AR'||x==='IK'));state.fixed.forEach(f=>{if(!['AR','IK'].includes(f.pat))f.pat='AR'})}return}}catch(e){} state=JSON.parse(JSON.stringify(DEFAULT))}
-function ensure(){const D=DEFAULT;['cur','semList','yearTarget','balance','capYear'].forEach(k=>{if(state[k]===undefined)state[k]=JSON.parse(JSON.stringify(D[k]))});state.lects.forEach(l=>{l.hist=l.hist||{};if(l.pgCur===undefined)l.pgCur=0;if(l.ytgt===undefined)l.ytgt=''})}
+function ensure(){const D=DEFAULT;const YD={1:5,2:3,3:2,4:6,5:4};state.types.forEach(t=>{if(t.year===undefined)t.year=YD[t.id]!=null?YD[t.id]:2*t.quota});if(!Array.isArray(state.pg)){state.pg=[];state.lects.forEach(l=>{for(let i=0;i<(+l.pgCur||0);i++)state.pg.push({code:'PG',name:'(PG dari rekod lama)',grp:'A',lec:l.id})})}state.lects.forEach(l=>{delete l.pgCur});['cur','semList','yearTarget','balance','capYear'].forEach(k=>{if(state[k]===undefined)state[k]=JSON.parse(JSON.stringify(D[k]))});state.lects.forEach(l=>{l.hist=l.hist||{};if(l.pgCur===undefined)l.pgCur=0;if(l.ytgt===undefined)l.ytgt=''})}
 function save(){try{localStorage.setItem('bbaSched_A262',JSON.stringify(state))}catch(e){}}
 function stripResult(){const c=JSON.parse(JSON.stringify(state));delete c.result;return c}
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -278,8 +285,9 @@ const need=c=>c.ovr!==''&&c.ovr!=null&&!isNaN(+c.ovr)?Math.max(0,parseInt(c.ovr)
 const baseQuota=l=>l.qovr!==''&&l.qovr!=null&&!isNaN(+l.qovr)?parseInt(l.qovr):((state.types.find(t=>t.id==l.type)||{quota:0}).quota);
 const yearOf=code=>String(code||'').slice(0,3);
 function prevYearLoad(l){let t=0;for(const sm of state.semList){if(yearOf(sm)===yearOf(state.cur)){const h=(l.hist||{})[sm];if(h)t+=(+h.ug||0)+(+h.pg||0)}}return t}
-const yTarget=l=>l.ytgt!==''&&l.ytgt!=null&&!isNaN(+l.ytgt)?+l.ytgt:(+state.yearTarget||0);
-const quotaOf=l=>{const q=baseQuota(l);if(!state.capYear)return q;return Math.max(0,Math.min(q,yTarget(l)-prevYearLoad(l)-(+l.pgCur||0)))};
+const yTarget=l=>{if(l.ytgt!==''&&l.ytgt!=null&&!isNaN(+l.ytgt))return +l.ytgt;const t=state.types.find(x=>x.id==l.type);return t&&t.year!=null&&t.year!==''?+t.year:(+state.yearTarget||0)};
+const pgCount=l=>(state.pg||[]).filter(p=>p.lec!==''&&p.lec==l.id).length;
+const quotaOf=l=>{const q=Math.max(0,baseQuota(l)-pgCount(l));if(!state.capYear)return q;return Math.max(0,Math.min(q,yTarget(l)-prevYearLoad(l)-pgCount(l)))};
 const sessOf=i=>{const m=(state.slots[i]?.label||'').match(/(\d{1,2})[:.](\d{2})/);return m&&+m[1]>=13?'pm':'am'};
 const lectById=id=>state.lects.find(l=>l.id==id);
 function slotRange(s,len){const a=(state.slots[s]?.label||'').split(/[–-]/)[0].trim();const b=(state.slots[s+len-1]?.label||'').split(/[–-]/).pop().trim();return a+'–'+b}
@@ -315,29 +323,42 @@ function importCourses(){
   save();renderAll();toast(n+' kursus diimport');document.getElementById('taCourses').value='';
 }
 
+function renderPG(){
+  let h='<tr><th>Jenis</th><th>Kod</th><th>Nama kursus / program</th><th>Kump.</th><th>Pensyarah</th><th></th></tr>';
+  (state.pg||[]).forEach((p,i)=>{h+=`<tr><td><select style="width:120px" onchange="state.pg[${i}].kind=this.value;save();renderAll()"><option value="PG" ${p.kind!=='Lain'?'selected':''}>PG</option><option value="Lain" ${p.kind==='Lain'?'selected':''}>Program lain</option></select></td><td><input value="${esc(p.code)}" style="width:110px" onchange="state.pg[${i}].code=this.value.trim().toUpperCase();save();renderAll()"></td>
+    <td><input value="${esc(p.name)}" onchange="state.pg[${i}].name=this.value;save();renderAll()"></td>
+    <td><input value="${esc(p.grp||'A')}" style="width:50px" onchange="state.pg[${i}].grp=this.value;save();renderAll()"></td>
+    <td><select onchange="state.pg[${i}].lec=this.value===''?'':+this.value;save();renderAll()" style="${p.lec===''?'border-color:var(--amber);background:var(--amber-l)':''}"><option value="">— Kosong / TBA —</option>${state.lects.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(l=>`<option value="${l.id}" ${p.lec!==''&&l.id==p.lec?'selected':''}>${esc(l.name)}</option>`).join('')}</select></td>
+    <td><button class="btn sm del" onclick="state.pg.splice(${i},1);save();renderAll()">✕</button></td></tr>`});
+  if(!(state.pg||[]).length)h+='<tr><td colspan="6" class="muted">Tiada kelas.</td></tr>';
+  else{const v=state.pg.filter(p=>p.lec==='').length;h+=`<tr><td colspan="6" class="muted">${state.pg.filter(p=>p.kind!=='Lain').length} kelas PG · ${state.pg.filter(p=>p.kind==='Lain').length} kelas program lain${v?` · <b class="bad">${v} belum ada pensyarah (TBA)</b>`:' · semua ada pensyarah'}</td></tr>`}
+  document.getElementById('tblPG').innerHTML=h;
+}
+function addPG(){state.pg.push({kind:'PG',code:'',name:'',grp:'A',lec:''});save();renderAll()}
+
 /* LECTURERS */
 function renderTypes(){
-  let h='<tr><th>Jenis</th><th>Keterangan</th><th>Kuota</th></tr>';
-  state.types.forEach((t,i)=>h+=`<tr><td>Jenis ${t.id}</td><td><input value="${esc(t.name)}" onchange="state.types[${i}].name=this.value;save();renderAll()"></td><td><input class="num" type="number" value="${t.quota}" onchange="state.types[${i}].quota=+this.value;save();renderAll()"></td></tr>`);
+  let h='<tr><th>Jenis</th><th>Keterangan</th><th>Kuota semester (UG+PG)</th><th>Sasaran setahun</th></tr>';
+  state.types.forEach((t,i)=>h+=`<tr><td>Jenis ${t.id}</td><td><input value="${esc(t.name)}" onchange="state.types[${i}].name=this.value;save();renderAll()"></td><td><input class="num" type="number" value="${t.quota}" onchange="state.types[${i}].quota=+this.value;save();renderAll()"></td><td><input class="num" type="number" value="${t.year??''}" onchange="state.types[${i}].year=+this.value;save();renderAll()"></td></tr>`);
   document.getElementById('tblTypes').innerHTML=h;
 }
 function renderLects(){
-  let h='<tr><th style="min-width:190px">Nama</th><th>Jenis</th><th>Kuota</th><th>Kursus boleh diajar</th><th>Corak hari</th><th>Masa</th><th>Hari tidak boleh</th><th></th></tr>';
+  let h='<tr><th style="min-width:190px">Nama</th><th>Jenis</th><th title="Jumlah slot semester ini, UG + PG">Kuota<br><span style="font-weight:400;text-transform:none">(UG+PG)</span></th><th>Kursus boleh diajar</th><th>Corak hari</th><th>Masa</th><th>Hari tidak boleh</th><th></th></tr>';
   state.lects.forEach((l,i)=>{
     h+=`<tr><td><input value="${esc(l.name)}" onchange="state.lects[${i}].name=this.value;save();renderAll()"></td>
-    <td><select onchange="state.lects[${i}].type=+this.value;save();renderAll()" style="width:150px">${state.types.map(t=>`<option value="${t.id}" ${t.id==l.type?'selected':''}>${t.id} · ${esc(t.name)}</option>`).join('')}</select></td>
-    <td><input class="num" type="number" style="width:60px" placeholder="${baseQuota({...l,qovr:''})}" value="${esc(l.qovr)}" onchange="state.lects[${i}].qovr=this.value;save();renderAll()"></td>
+    <td><select onchange="state.lects[${i}].type=+this.value;state.lects[${i}].qovr='';save();renderAll();toast('Jenis ditukar — kuota kini ikut jenis')" style="width:150px">${state.types.map(t=>`<option value="${t.id}" ${t.id==l.type?'selected':''}>${t.id} · ${esc(t.name)}</option>`).join('')}</select></td>
+    <td><input class="num" type="number" style="width:60px" placeholder="${baseQuota({...l,qovr:''})}" value="${esc(l.qovr)}" onchange="state.lects[${i}].qovr=this.value;save();renderAll()">${pgCount(l)?`<div class="muted" style="font-size:11px">PG/lain ${pgCount(l)} · UG ${quotaOf(l)}</div>`:''}</td>
     <td><div class="chips">${state.courses.map(c=>`<span class="chip ${l.courses.includes(c.code)?'on':''}" style="${(l.prev||[]).includes(c.code)?'font-weight:700;text-decoration:underline':''}" title="${esc(c.name)}${(l.prev||[]).includes(c.code)?' (diajar A261)':''}" onclick="tog(${i},'courses','${esc(c.code)}')">${esc(c.code)}</span>`).join('')}</div></td>
     <td><div class="chips">${state.patterns.map(p=>`<span class="chip ${l.patterns.includes(p.code)?'on':''}" onclick="tog(${i},'patterns','${esc(p.code)}')">${esc(p.code)}</span>`).join('')}</div></td>
     <td><select onchange="state.lects[${i}].time=this.value;save()" style="width:95px"><option value="all" ${l.time==='all'?'selected':''}>Bebas</option><option value="am" ${l.time==='am'?'selected':''}>Pagi sahaja</option><option value="pm" ${l.time==='pm'?'selected':''}>Petang sahaja</option></select></td>
     <td><div class="chips">${DAYS.map((d,di)=>`<span class="chip off-red ${l.blocked.includes(di)?'on':''}" onclick="tog(${i},'blocked',${di})">${d.slice(0,3)}</span>`).join('')}</div></td>
     <td><button class="btn sm del" onclick="delLect(${i})">✕</button></td></tr>`});
   const totQ=state.lects.reduce((a,l)=>a+quotaOf(l),0),totN=state.courses.reduce((a,c)=>a+need(c),0);
-  h+=`<tr><td colspan="2" style="text-align:right"><b>Jumlah kuota</b></td><td><b class="${totQ>=totN?'ok':'bad'}">${totQ}</b></td><td colspan="5" class="muted">Diperlukan: ${totN} kumpulan · ${state.lects.length} pensyarah</td></tr>`;
+  h+=`<tr><td colspan="2" style="text-align:right"><b>Jumlah kuota UG</b></td><td><b class="${totQ>=totN?'ok':'bad'}">${totQ}</b></td><td colspan="5" class="muted">Diperlukan: ${totN} kumpulan · ${state.lects.length} pensyarah</td></tr>`;
   document.getElementById('tblLects').innerHTML=h;
 }
 function tog(i,k,v){const a=state.lects[i][k];const j=a.indexOf(v);j>=0?a.splice(j,1):a.push(v);save();renderAll()}
-function addLect(){state.lects.push({id:state.nextId++,name:'',type:1,qovr:'',courses:[],patterns:[],time:'all',blocked:[],hist:{},pgCur:0,ytgt:''});save();renderAll()}
+function addLect(){state.lects.push({id:state.nextId++,name:'',type:1,qovr:'',courses:[],patterns:[],time:'all',blocked:[],hist:{},ytgt:''});save();renderAll()}
 function delLect(i){const id=state.lects[i].id;state.lects.splice(i,1);state.fixed=state.fixed.filter(f=>f.lec!=id);save();renderAll()}
 function importPrev(){
   const lines=document.getElementById('taPrev').value.split('\n').filter(x=>x.trim());const map={};let rows=0,noName=0;
@@ -453,7 +474,7 @@ function runOnce(P,rnd){
     for(let i=roomsSorted.length-1;i>=0;i--){const r=roomsSorted[i];if(roomFree(r.name,ps.cells))return {room:r.name,pen:50+(c.cap-r.cap)}}
     return null;
   }
-  for(const {c} of secs){
+  function tryPlace(c){
     const cand=[];
     for(const l of state.lects){
       if(!l.courses.includes(c.code))continue;const q=quotaOf(l);if(used[l.id]>=q)continue;
@@ -466,7 +487,7 @@ function runOnce(P,rnd){
         if(teach[l.id].has(c.code))sc-=2;else if(teach[l.id].size)sc+=2;
         if(l.prev&&l.prev.length&&!l.prev.includes(c.code))sc+=5;
         sc-=1.5*((q-used[l.id])/Math.max(1,q));
-        if(state.balance)sc+=0.8*(prevYearLoad(l)+(+l.pgCur||0)+used[l.id]-(+state.yearTarget||5)/2);
+        if(state.balance)sc+=0.8*(prevYearLoad(l)+pgCount(l)+used[l.id]-yTarget(l)/2);
         let adj=0;for(const x of ps.cells){const [d,s]=x.split('-').map(Number);if(lecBusy[l.id].has(d+'-'+(s-1))||lecBusy[l.id].has(d+'-'+(s+1)))adj++;if((dayLoad[l.id+'|'+d]||0)+1>3)sc+=4}
         sc-=0.3*adj;
         sc+=rnd()*0.9;
@@ -481,8 +502,26 @@ function runOnce(P,rnd){
       const tot=cd.sc+r.pen;if(tot<bc){bc=tot;best={l:cd.l,ps:cd.ps,room:r.room}}
       if(r.pen<1)break;
     }
-    if(best){commit(best.l,c,best.ps,best.room,false);cost+=bc;const r=state.rooms.find(x=>x.name===best.room);if(r&&r.cap<c.cap)cost+=20}
-    else U.push(c.code);
+    if(best){commit(best.l,c,best.ps,best.room,false);cost+=bc;const r=state.rooms.find(x=>x.name===best.room);if(r&&r.cap<c.cap)cost+=20;return true}
+    return false;
+  }
+  for(const {c} of secs){if(!tryPlace(c))U.push(c.code)}
+  // repair: free a lecturer who can teach an unplaced course by handing one of their classes to someone with spare quota
+  for(let ui=U.length-1;ui>=0;ui--){
+    const c=courseOf(U[ui]);let done=false;
+    for(const L of state.lects){if(done)break;if(!L.courses.includes(c.code)||used[L.id]<quotaOf(L))continue;
+      for(const a of A.filter(x=>x.lec==L.id&&!x.fixed&&x.course!==c.code)){if(done)break;
+        const ps=P.find(x=>x.pat===a.pat&&x.s===a.s);if(!ps)continue;
+        for(const M of state.lects){if(M.id==L.id||!M.courses.includes(a.course)||used[M.id]>=quotaOf(M)||!lectAllows(M,ps))continue;
+          if(ps.cells.some(x=>lecBusy[M.id].has(x)))continue;
+          ps.cells.forEach(x=>{lecBusy[L.id].delete(x);lecBusy[M.id].add(x);lecRoomAt[M.id+'|'+x]=a.room;delete lecRoomAt[L.id+'|'+x]});
+          used[L.id]--;used[M.id]++;teach[M.id].add(a.course);a.lec=M.id;
+          if(tryPlace(c)){U.splice(ui,1);done=true}
+          else{ps.cells.forEach(x=>{lecBusy[M.id].delete(x);lecBusy[L.id].add(x);lecRoomAt[L.id+'|'+x]=a.room});used[L.id]++;used[M.id]--;a.lec=L.id}
+          break;
+        }
+      }
+    }
   }
   return {A,U,W,cost:U.length*1000+cost};
 }
@@ -557,7 +596,7 @@ function renderJana(){const ob=document.getElementById('optBal'),oc=document.get
   }else if(view==='pensyarah'){
     o+='<div class="scroll"><table><tr><th>Pensyarah</th><th>Jenis</th><th>Diberi / Kuota</th><th>Kelas</th></tr>';
     state.lects.forEach(l=>{const mine=valid.filter(a=>a.lec==l.id);const q=quotaOf(l);
-      o+=`<tr><td>${esc(l.name)}</td><td>${l.type}</td><td><span class="tag ${mine.length>q?'bad':mine.length<q?'warn':'ok'}">${mine.length} / ${q}</span></td><td>${mine.map(a=>`${esc(a.course)}-${a.grp} · ${a.days.map(d=>DAYS[d].slice(0,3)).join('/')} ${slotRange(a.s,a.len)} · ${esc(a.room||'')}`).join('<br>')||'<span class="muted">–</span>'}</td></tr>`});
+      o+=`<tr><td>${esc(l.name)}</td><td>${l.type}</td><td><span class="tag ${mine.length>q?'bad':mine.length<q?'warn':'ok'}">UG ${mine.length} / ${q}</span>${pgCount(l)?` <span class="tag warn">+ PG/lain ${pgCount(l)}</span>`:''}</td><td>${[...mine.map(a=>`${esc(a.course)}-${a.grp} · ${a.days.map(d=>DAYS[d].slice(0,3)).join('/')} ${slotRange(a.s,a.len)} · ${esc(a.room||'')}`),...state.pg.filter(p=>p.lec!==''&&p.lec==l.id).map(p=>`<span class="tag warn">${p.kind==='Lain'?'Lain':'PG'}</span> ${esc(p.code)} ${esc(p.name)}`)].join('<br>')||'<span class="muted">–</span>'}</td></tr>`});
     o+='</table></div>';
   }else{
     o+='<div class="scroll"><table><tr><th>Bilik</th><th>Kapasiti</th><th>Penggunaan</th></tr>';
@@ -576,26 +615,26 @@ function copyCSV(){const R=state.result;if(!R)return;const q=v=>'"'+String(v).re
 
 /* ================= BEBAN TAHUNAN ================= */
 function curUG(l){const R=state.result;if(R)return R.A.filter(a=>a.lec==l.id&&state.courses.some(c=>c.code===a.course)).length;return null}
-function loadRow(l){const yrSems=state.semList.filter(sm=>yearOf(sm)===yearOf(state.cur));const prev=prevYearLoad(l);const ug=curUG(l);const ugv=ug==null?baseQuota(l):ug;const tot=prev+ugv+(+l.pgCur||0);const t=yTarget(l);return {prev,ug,ugv,tot,t,diff:tot-t,yrSems}}
+function loadRow(l){const yrSems=state.semList.filter(sm=>yearOf(sm)===yearOf(state.cur));const prev=prevYearLoad(l);const ug=curUG(l);const ugv=ug==null?quotaOf(l):ug;const tot=prev+ugv+pgCount(l);const t=yTarget(l);return {prev,ug,ugv,tot,t,diff:tot-t,yrSems}}
 function renderBeban(){
-  document.getElementById('curSem').value=state.cur;document.getElementById('yearTgt').value=state.yearTarget;
+  document.getElementById('curSem').value=state.cur;
   const sort=document.getElementById('loadSort').value;
   const rows=state.lects.map(l=>({l,...loadRow(l)}));
   if(sort==='low')rows.sort((a,b)=>a.diff-b.diff);else if(sort==='high')rows.sort((a,b)=>b.diff-a.diff);else rows.sort((a,b)=>a.l.name.localeCompare(b.l.name));
   const yrSems=state.semList.filter(sm=>yearOf(sm)===yearOf(state.cur));const older=state.semList.filter(sm=>yearOf(sm)!==yearOf(state.cur));
   const n=rows.length,below=rows.filter(r=>r.diff<0).length,above=rows.filter(r=>r.diff>0).length,tot=rows.reduce((a,r)=>a+r.tot,0);
-  document.getElementById('bebanKpi').innerHTML=`<div class="kpis"><div class="kpi"><div class="v">${n}</div><div class="l">Pensyarah</div></div><div class="kpi"><div class="v">${n?(tot/n).toFixed(1):0}</div><div class="l">Purata slot setahun (sasaran ${state.yearTarget})</div></div><div class="kpi"><div class="v ok">${n-below-above}</div><div class="l">Tepat sasaran</div></div><div class="kpi"><div class="v ${below?'bad':''}">${below}</div><div class="l">Kurang daripada sasaran</div></div><div class="kpi"><div class="v ${above?'bad':''}">${above}</div><div class="l">Melebihi sasaran</div></div></div>
+  document.getElementById('bebanKpi').innerHTML=`<div class="kpis"><div class="kpi"><div class="v">${n}</div><div class="l">Pensyarah</div></div><div class="kpi"><div class="v">${n?(tot/n).toFixed(1):0}</div><div class="l">Purata slot setahun</div></div><div class="kpi"><div class="v ok">${n-below-above}</div><div class="l">Tepat sasaran</div></div><div class="kpi"><div class="v ${below?'bad':''}">${below}</div><div class="l">Kurang daripada sasaran</div></div><div class="kpi"><div class="v ${above?'bad':''}">${above}</div><div class="l">Melebihi sasaran</div></div></div>
   ${state.result?'':'<p class="muted">Jadual belum dijana — lajur UG '+esc(state.cur)+' menunjukkan kuota dirancang. Jana jadual untuk angka sebenar.</p>'}`;
-  let h=`<tr><th>Bil</th><th>Nama pensyarah</th>${older.map(sm=>`<th title="Tahun akademik lain">${esc(sm)}</th>`).join('')}${yrSems.map(sm=>`<th>${esc(sm)} UG</th><th>${esc(sm)} PG</th>`).join('')}<th>${esc(state.cur)} UG<br><span style="font-weight:400;text-transform:none">(jadual)</span></th><th>${esc(state.cur)} PG</th><th>Jumlah setahun</th><th>Sasaran</th><th style="min-width:150px">Status</th></tr>`;
+  let h=`<tr><th>Bil</th><th>Nama pensyarah</th>${older.map(sm=>`<th title="Tahun akademik lain">${esc(sm)}</th>`).join('')}${yrSems.map(sm=>`<th>${esc(sm)} UG</th><th>${esc(sm)} PG</th>`).join('')}<th>${esc(state.cur)} UG<br><span style="font-weight:400;text-transform:none">(jadual)</span></th><th>${esc(state.cur)} PG / lain<br><span style="font-weight:400;text-transform:none">(tab Kursus)</span></th><th>Jumlah setahun</th><th>Sasaran</th><th style="min-width:150px">Status</th></tr>`;
   rows.forEach((r,i)=>{const l=r.l;const li=state.lects.indexOf(l);const pct=Math.min(100,r.t?r.tot/r.t*100:0);
     const st=r.diff===0?'<span class="tag ok">Seimbang</span>':r.diff<0?`<span class="tag warn">Kurang ${-r.diff}</span>`:`<span class="tag bad">Lebih ${r.diff}</span>`;
     h+=`<tr><td>${i+1}</td><td>${esc(l.name)}</td>
     ${older.map(sm=>{const x=(l.hist||{})[sm]||{};return `<td class="muted">${(+x.ug||0)+(+x.pg||0)}</td>`}).join('')}
     ${yrSems.map(sm=>{const x=(l.hist||{})[sm]||{};return `<td><input class="num" style="width:55px" type="number" min="0" value="${+x.ug||0}" onchange="setH(${li},'${esc(sm)}','ug',this.value)"></td><td><input class="num" style="width:55px" type="number" min="0" value="${+x.pg||0}" onchange="setH(${li},'${esc(sm)}','pg',this.value)"></td>`}).join('')}
     <td><b>${r.ug==null?`<span class="muted">${r.ugv}</span>`:r.ugv}</b></td>
-    <td><input class="num" style="width:55px" type="number" min="0" value="${+l.pgCur||0}" onchange="state.lects[${li}].pgCur=+this.value;save();renderBeban()"></td>
+    <td title="${esc((state.pg||[]).filter(p=>p.lec==l.id).map(p=>p.code+' '+p.name).join('; '))}"><b>${pgCount(l)}</b></td>
     <td><b>${r.tot}</b></td>
-    <td><input class="num" style="width:55px" type="number" placeholder="${state.yearTarget}" value="${esc(l.ytgt)}" onchange="state.lects[${li}].ytgt=this.value;save();renderBeban()"></td>
+    <td><input class="num" style="width:55px" type="number" placeholder="${yTarget({...l,ytgt:''})}" value="${esc(l.ytgt)}" onchange="state.lects[${li}].ytgt=this.value;save();renderBeban()"></td>
     <td><div class="row" style="gap:6px;flex-wrap:nowrap"><div class="prog" style="min-width:60px"><div style="width:${pct}%;background:${r.diff>0?'var(--red)':r.diff<0?'var(--amber)':'var(--green)'}"></div></div>${st}</div></td></tr>`});
   if(!rows.length)h+='<tr><td colspan="10" class="muted">Tiada pensyarah.</td></tr>';
   document.getElementById('tblBeban').innerHTML=h;
@@ -603,7 +642,7 @@ function renderBeban(){
 function setH(i,sm,k,v){const l=state.lects[i];l.hist=l.hist||{};l.hist[sm]=l.hist[sm]||{ug:0,pg:0};l.hist[sm][k]=+v||0;save();renderBeban()}
 function copyLoadCSV(){const q=v=>'"'+String(v).replace(/"/g,'""')+'"';const yrSems=state.semList.filter(sm=>yearOf(sm)===yearOf(state.cur));
   const head=['Nama',...yrSems.flatMap(sm=>[sm+' UG',sm+' PG']),state.cur+' UG',state.cur+' PG','Jumlah setahun','Sasaran','Beza'];
-  const lines=[head.map(q).join(',')];state.lects.slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(l=>{const r=loadRow(l);lines.push([l.name,...yrSems.flatMap(sm=>{const x=(l.hist||{})[sm]||{};return [+x.ug||0,+x.pg||0]}),r.ugv,+l.pgCur||0,r.tot,r.t,r.diff].map(q).join(','))});
+  const lines=[head.map(q).join(',')];state.lects.slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(l=>{const r=loadRow(l);lines.push([l.name,...yrSems.flatMap(sm=>{const x=(l.hist||{})[sm]||{};return [+x.ug||0,+x.pg||0]}),r.ugv,pgCount(l),r.tot,r.t,r.diff].map(q).join(','))});
   copyText(lines.join('\n'),'CSV beban disalin')}
 function nextSemCode(c){const m=String(c).match(/^([A-Z])(\d\d)(\d)$/);if(!m)return c;return m[3]==='1'?m[1]+m[2]+'2':m[1]+String(+m[2]+1).padStart(2,'0')+'1'}
 function newSemDlg(){const m=document.createElement('div');m.className='modal on';m.id='nsm';const nx=nextSemCode(state.cur);
@@ -612,8 +651,8 @@ function newSemDlg(){const m=document.createElement('div');m.className='modal on
   <div class="row" style="margin-top:14px"><button class="btn pri" id="nsGo">Tutup &amp; mula ${esc(nx)}</button><button class="btn" onclick="document.getElementById('nsm').remove()">Batal</button></div></div>`;
   document.body.appendChild(m);
   document.getElementById('nsGo').onclick=()=>{const code=document.getElementById('nsCode').value.trim().toUpperCase();if(!code)return;
-    state.lects.forEach(l=>{const r=loadRow(l);l.hist=l.hist||{};l.hist[state.cur]={ug:r.ugv,pg:+l.pgCur||0};l.pgCur=0;l.prev=[...new Set([...(l.prev||[]),...(state.result?state.result.A.filter(a=>a.lec==l.id).map(a=>a.course):[])])]});
-    if(!state.semList.includes(state.cur))state.semList.push(state.cur);state.cur=code;state.result=null;state.fixed=[];save();m.remove();renderAll();renderBeban();toast('Semester '+code+' dimulakan')}}
+    state.lects.forEach(l=>{const r=loadRow(l);l.hist=l.hist||{};l.hist[state.cur]={ug:r.ugv,pg:pgCount(l)};l.prev=[...new Set([...(l.prev||[]),...(state.result?state.result.A.filter(a=>a.lec==l.id).map(a=>a.course):[])])]});
+    if(!state.semList.includes(state.cur))state.semList.push(state.cur);state.cur=code;state.result=null;state.fixed=[];(state.pg||[]).forEach(p=>p.lec='');save();m.remove();renderAll();renderBeban();toast('Semester '+code+' dimulakan')}}
 
 /* IO */
 function openIO(){document.getElementById('io').classList.add('on');let bk=null;try{bk=JSON.parse(localStorage.getItem('bbaSched_backup')||'null')}catch(e){}
@@ -626,7 +665,7 @@ function loadFile(inp){const f=inp.files[0];if(!f)return;const r=new FileReader(
 function resetAll(){const b=document.getElementById('btnReset');if(!b){const m=document.createElement('div');m.className='modal on';m.id='rm';m.innerHTML='<div class="box"><h2 style="margin-top:0">Set semula semua data?</h2><p class="muted">Semua kursus, pensyarah, bilik dan jadual akan kembali kepada nilai asal. Salin JSON dahulu jika mahu simpan.</p><div class="row"><button class="btn del" id="btnReset">Ya, set semula</button><button class="btn" onclick="document.getElementById(\'rm\').remove()">Batal</button></div></div>';document.body.appendChild(m);
   document.getElementById('btnReset').onclick=()=>{state=JSON.parse(JSON.stringify(DEFAULT));ensure();save();renderAll();m.remove();toast('Data diset semula')}}}
 
-function renderAll(){ensure();renderNav();if(tab==='beban')renderBeban();renderCourses();renderTypes();renderLects();renderRooms();renderFixed();renderSettings();if(tab==='jana')renderJana()}
+function renderAll(){ensure();renderNav();renderPG();if(tab==='beban')renderBeban();renderCourses();renderTypes();renderLects();renderRooms();renderFixed();renderSettings();if(tab==='jana')renderJana()}
 load();ensure();renderAll();
 </script>
 </body>
