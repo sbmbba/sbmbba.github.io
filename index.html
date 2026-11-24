@@ -64,6 +64,26 @@ textarea{width:100%;font:13px/1.4 ui-monospace,Consolas,monospace;padding:8px;bo
 .modal{position:fixed;inset:0;background:rgba(10,20,40,.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:10}
 .modal.on{display:flex}
 .modal .box{background:#fff;border-radius:10px;padding:18px;max-width:700px;width:100%}
+/* dashboard */
+.dash{--s1:#2a78d6;--good:#0ca30c;--warn:#fab219;--crit:#d03b3b;--grid:#e6e9ef}
+.dash-hero{background:var(--navy);color:#fff;border-radius:12px;padding:20px 24px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-bottom:4px solid var(--amber)}
+.dash-hero h2{margin:0;font-size:24px;font-weight:700}.dash-hero .s{opacity:.8;font-size:13px;margin-top:4px}
+.dash-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.dash-grid .card{margin:0}
+.dash-grid .wide{grid-column:1/-1}
+@media(max-width:900px){.dash-grid{grid-template-columns:1fr}}
+.dash .kpi .v{font-size:30px}
+.dash .kpi .d{font-size:12px;color:var(--mute);margin-top:2px}
+.dash svg text{font-family:'IBM Plex Sans',system-ui,sans-serif}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin:4px 0 8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:8px;margin:6px 0;font-size:13px}
+.alert b{white-space:nowrap}
+.alert.crit{background:var(--red-l)}.alert.warn{background:var(--amber-l)}.alert.good{background:var(--green-l)}
+#tip{position:fixed;pointer-events:none;background:#14284b;color:#fff;font-size:12px;padding:6px 9px;border-radius:6px;opacity:0;transition:opacity .1s;z-index:50;max-width:280px;line-height:1.4}
+body.present header,body.present nav{display:none}
+body.present main{max-width:1500px;padding:16px 24px}
+body.present .noprint-present{display:none}
 @media print{nav,header .row,.noprint{display:none!important}}
 </style>
 </head>
@@ -183,6 +203,9 @@ BK 3 ; 60"></textarea>
   </div>
 </section>
 
+<!-- DASHBOARD -->
+<section class="tabpane dash" id="t-dash"><div id="dashBody"></div></section>
+
 <!-- TETAPAN -->
 <section class="tabpane" id="t-tetapan">
   <div class="card">
@@ -234,6 +257,7 @@ BK 3 ; 60"></textarea>
   </div>
 </div></div>
 <div id="toast"></div>
+<div id="tip"></div>
 
 <script>
 const DAYS=['Ahad','Isnin','Selasa','Rabu','Khamis'];
@@ -269,7 +293,7 @@ const DEFAULT={
   result:null
 };
 let state; let tab='kursus';
-const TABS=[['kursus','1 · Kursus'],['pensyarah','2 · Pensyarah'],['bilik','3 · Bilik'],['khas','4 · Permohonan Khas'],['jana','5 · Jana & Jadual'],['beban','6 · Beban Tahunan (KPI)'],['tetapan','Tetapan Masa']];
+const TABS=[['kursus','1 · Kursus'],['pensyarah','2 · Pensyarah'],['bilik','3 · Bilik'],['khas','4 · Permohonan Khas'],['jana','5 · Jana & Jadual'],['beban','6 · Beban Tahunan (KPI)'],['dash','7 · Dashboard'],['tetapan','Tetapan Masa']];
 
 function load(){try{const s=localStorage.getItem('bbaSched_A262');if(s){state=JSON.parse(s);if(!state.ver||state.ver<2){const D=JSON.parse(JSON.stringify(DEFAULT));state.slots=D.slots;state.patterns=D.patterns;state.rooms=D.rooms;state.ver=2;state.result=null;state.lects.forEach(l=>l.patterns=l.patterns.filter(x=>x==='AR'||x==='IK'));state.fixed.forEach(f=>{if(!['AR','IK'].includes(f.pat))f.pat='AR'})}return}}catch(e){} state=JSON.parse(JSON.stringify(DEFAULT))}
 function ensure(){const D=DEFAULT;const YD={1:5,2:3,3:2,4:6,5:4};state.types.forEach(t=>{if(t.year===undefined)t.year=YD[t.id]!=null?YD[t.id]:2*t.quota});if(!Array.isArray(state.pg)){state.pg=[];state.lects.forEach(l=>{for(let i=0;i<(+l.pgCur||0);i++)state.pg.push({code:'PG',name:'(PG dari rekod lama)',grp:'A',lec:l.id})})}state.lects.forEach(l=>{delete l.pgCur});['cur','semList','yearTarget','balance','capYear'].forEach(k=>{if(state[k]===undefined)state[k]=JSON.parse(JSON.stringify(D[k]))});state.lects.forEach(l=>{l.hist=l.hist||{};if(l.pgCur===undefined)l.pgCur=0;if(l.ytgt===undefined)l.ytgt=''})}
@@ -295,7 +319,7 @@ const patDays=p=>p.days.map(d=>DAYS[d]).join(' & ');
 
 /* NAV */
 function renderNav(){document.getElementById('nav').innerHTML=TABS.map(([k,l])=>`<button class="${k===tab?'on':''}" onclick="go('${k}')">${l}</button>`).join('');document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('on',p.id==='t-'+tab))}
-function go(k){tab=k;renderNav();if(k==='jana')renderJana();if(k==='beban')renderBeban()}
+function go(k){tab=k;renderNav();if(k==='jana')renderJana();if(k==='beban')renderBeban();if(k==='dash')renderDash()}
 
 /* COURSES */
 function renderCourses(){
@@ -653,6 +677,105 @@ function newSemDlg(){const m=document.createElement('div');m.className='modal on
   document.getElementById('nsGo').onclick=()=>{const code=document.getElementById('nsCode').value.trim().toUpperCase();if(!code)return;
     state.lects.forEach(l=>{const r=loadRow(l);l.hist=l.hist||{};l.hist[state.cur]={ug:r.ugv,pg:pgCount(l)};l.prev=[...new Set([...(l.prev||[]),...(state.result?state.result.A.filter(a=>a.lec==l.id).map(a=>a.course):[])])]});
     if(!state.semList.includes(state.cur))state.semList.push(state.cur);state.cur=code;state.result=null;state.fixed=[];(state.pg||[]).forEach(p=>p.lec='');save();m.remove();renderAll();renderBeban();toast('Semester '+code+' dimulakan')}}
+
+
+/* ================= DASHBOARD ================= */
+const fmt=n=>Number(n).toLocaleString('en-US');
+function tipAttr(t){return `data-tip="${esc(t)}"`}
+document.addEventListener('mousemove',e=>{const t=document.getElementById('tip');const el=e.target.closest&&e.target.closest('[data-tip]');if(!t)return;if(el){t.innerHTML=el.getAttribute('data-tip').replace(/\|/g,'<br>');t.style.opacity=1;const x=Math.min(e.clientX+14,innerWidth-t.offsetWidth-8);t.style.left=x+'px';t.style.top=(e.clientY+14)+'px'}else t.style.opacity=0});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('present'))togglePresent()});
+function togglePresent(){document.body.classList.toggle('present');renderDash()}
+function hbars(items,{w=560,unit='',color='var(--s1)'}={}){ // items:[{label,value,sub,tip}]
+  const rowH=34,lw=230,pad=150,max=Math.max(1,...items.map(i=>i.value)),bw=w-lw-pad,h=items.length*rowH+8;const cut=t=>{const m=Math.floor((lw-10)/6.9);return t.length>m?t.slice(0,m-1)+'…':t};
+  let g='';items.forEach((it,i)=>{const y=i*rowH+6,len=Math.max(2,it.value/max*bw),bh=18;
+    g+=`<g ${tipAttr(it.tip||it.label+': '+it.value+unit)}><rect x="0" y="${y-4}" width="${w}" height="${rowH}" fill="transparent"/>
+    <text x="0" y="${y+13}" font-size="12.5" fill="#1b2333">${esc(cut(it.label))}</text>
+    <path d="M${lw},${y} h${len-4} q4,0 4,4 v${bh-8} q0,4 -4,4 h-${len-4} z" fill="${it.color||color}"/>
+    <text x="${lw+len+6}" y="${y+13}" font-size="12.5" font-weight="600" fill="#1b2333">${it.value}${unit}</text>
+    ${it.sub?`<text x="${lw+len+6+String(it.value+unit).length*8+6}" y="${y+13}" font-size="11.5" fill="#667085">${esc(it.sub)}</text>`:''}</g>`});
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" role="img">${g}</svg>`;
+}
+function columns(cats,series,{w=560,h=230}={}){ // stacked columns; series:[{name,color,values[]}]
+  const l=34,b=26,t=14,max=Math.max(1,...cats.map((c,i)=>series.reduce((a,s)=>a+s.values[i],0)));
+  const step=niceStep(max),top=Math.ceil(max/step)*step,ph=h-b-t,cw=(w-l)/cats.length,bw=Math.min(40,cw*.55);
+  let g='';for(let v=0;v<=top;v+=step){const y=t+ph-v/top*ph;g+=`<line x1="${l}" x2="${w}" y1="${y}" y2="${y}" stroke="var(--grid)"/><text x="${l-6}" y="${y+4}" font-size="11" text-anchor="end" fill="#667085">${v}</text>`}
+  cats.forEach((c,i)=>{const x=l+i*cw+(cw-bw)/2;let acc=0;const tot=series.reduce((a,s)=>a+s.values[i],0);
+    series.forEach((s,si)=>{const v=s.values[i];if(!v)return;const hh=v/top*ph;const y=t+ph-(acc+v)/top*ph;const last=si===series.length-1||series.slice(si+1).every(z=>!z.values[i]);
+      const gap=acc>0?2:0;g+=last?`<path ${tipAttr(c+' · '+s.name+': '+v)} d="M${x},${y+hh-gap} v-${hh-gap-4} q0,-4 4,-4 h${bw-8} q4,0 4,4 v${hh-gap-4} z" fill="${s.color}"/>`
+        :`<rect ${tipAttr(c+' · '+s.name+': '+v)} x="${x}" y="${y}" width="${bw}" height="${Math.max(0,hh-gap)}" fill="${s.color}"/>`;acc+=v});
+    g+=`<text x="${x+bw/2}" y="${t+ph-tot/top*ph-6}" font-size="12" font-weight="600" text-anchor="middle" fill="#1b2333">${tot}</text><text x="${x+bw/2}" y="${h-8}" font-size="12" text-anchor="middle" fill="#1b2333">${esc(c)}</text>`});
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" role="img">${g}</svg>`;
+}
+function niceStep(m){const r=m/4;const p=Math.pow(10,Math.floor(Math.log10(r||1)));const n=r/p;return (n<=1?1:n<=2?2:n<=5?5:10)*p}
+function heatmap(rows,cols,val,{w=560}={}){const ramp=['#f3f6fb','#cde2fb','#9ec5f4','#6da7ec','#3987e5','#256abf','#184f95','#0d366b'];
+  const l=96,t=26,cw=(w-l)/cols.length,ch=34,all=rows.flatMap((r,ri)=>cols.map((c,ci)=>val(ri,ci))),max=Math.max(1,...all),mn=Math.min(...all.filter(v=>v>0),max);let g='';
+  cols.forEach((c,ci)=>g+=`<text x="${l+ci*cw+cw/2}" y="16" font-size="12" text-anchor="middle" fill="#1b2333">${esc(c)}</text>`);
+  rows.forEach((r,ri)=>{g+=`<text x="${l-8}" y="${t+ri*ch+ch/2+4}" font-size="11.5" text-anchor="end" fill="#1b2333">${esc(r)}</text>`;
+    cols.forEach((c,ci)=>{const v=val(ri,ci);const k=v?(max===mn?4:1+Math.round((v-mn)/(max-mn)*(ramp.length-2))):0;
+      g+=`<g ${tipAttr(c+' '+r+': '+v+' kelas')}><rect x="${l+ci*cw+1}" y="${t+ri*ch+1}" width="${cw-2}" height="${ch-2}" rx="4" fill="${ramp[k]}"/>${v?`<text x="${l+ci*cw+cw/2}" y="${t+ri*ch+ch/2+4}" font-size="12" font-weight="600" text-anchor="middle" fill="${k>=4?'#fff':'#1b2333'}">${v}</text>`:''}</g>`})});
+  return `<svg viewBox="0 0 ${w} ${t+rows.length*ch+4}" width="100%" role="img">${g}</svg>`;
+}
+function renderDash(){
+  const el=document.getElementById('dashBody');if(!el)return;const R=state.result;
+  if(!R){el.innerHTML=`<div class="card"><h2>Dashboard</h2><p class="h">Jana jadual dahulu di tab <b>5 · Jana &amp; Jadual</b>. Dashboard akan meringkaskan keputusan dalam bentuk carta.</p><button class="btn amb" onclick="go('jana')">Pergi ke Jana Jadual</button></div>`;return}
+  const valid=R.A.filter(a=>state.courses.some(c=>c.code===a.course));
+  const needT=state.courses.reduce((a,c)=>a+need(c),0),students=state.courses.reduce((a,c)=>a+(+c.students||0),0);
+  const pgs=(state.pg||[]),pgN=pgs.filter(p=>p.kind!=='Lain').length,lainN=pgs.filter(p=>p.kind==='Lain').length,tba=pgs.filter(p=>p.lec==='').length;
+  const rows=state.lects.map(l=>({l,...loadRow(l),ugNow:valid.filter(a=>a.lec==l.id).length,pgNow:pgCount(l)}));
+  const teaching=rows.filter(r=>r.ugNow+r.pgNow>0).length;
+  const on=rows.filter(r=>r.diff===0),under=rows.filter(r=>r.diff<0),over=rows.filter(r=>r.diff>0);
+  const roomsUsed=new Set(valid.map(a=>a.room).filter(Boolean));
+  const newSub=valid.filter(isNew).length;
+  const smallRoom=valid.filter(a=>{const r=state.rooms.find(x=>x.name===a.room),c=state.courses.find(x=>x.code===a.course);return r&&c&&r.cap<c.cap}).length;
+  // course chart
+  const cItems=state.courses.filter(c=>need(c)>0).map(c=>{const n=valid.filter(a=>a.course===c.code).length;const lec=new Set(valid.filter(a=>a.course===c.code).map(a=>a.lec)).size;
+    return {label:c.code+' '+c.name,value:n,sub:fmt(c.students)+' pelajar',tip:`${c.code} ${c.name}|${n} kumpulan (diperlukan ${need(c)})|${fmt(c.students)} pelajar · kapasiti ${c.cap}/kelas|${lec} pensyarah`,color:n<need(c)?'var(--crit)':'var(--s1)'}}).sort((a,b)=>b.value-a.value);
+  // types
+  const tItems=state.types.map(t=>{const rs=rows.filter(r=>r.l.type==t.id);return {label:'Jenis '+t.id+' · '+t.name.split('(')[0].trim(),value:rs.reduce((a,r)=>a+r.ugNow+r.pgNow,0),sub:rs.length+' pensyarah',tip:`${t.name}|${rs.length} pensyarah · kuota ${t.quota}/semester · sasaran ${t.year}/tahun|${rs.reduce((a,r)=>a+r.ugNow,0)} slot UG + ${rs.reduce((a,r)=>a+r.pgNow,0)} PG/lain semester ini`}}).filter(x=>x.sub!=='0 pensyarah');
+  // semester trend
+  const sems=[...state.semList.filter(sm=>yearOf(sm)===yearOf(state.cur)),state.cur];
+  const ugS=sems.map(sm=>sm===state.cur?valid.length:state.lects.reduce((a,l)=>a+(+((l.hist||{})[sm]||{}).ug||0),0));
+  const pgS=sems.map(sm=>sm===state.cur?pgs.filter(p=>p.lec!=='').length:state.lects.reduce((a,l)=>a+(+((l.hist||{})[sm]||{}).pg||0),0));
+  // status bar
+  const N=rows.length||1;const seg=(n,c,lab)=>n?`<div ${tipAttr(lab+': '+n+' pensyarah')} style="flex:${n};background:${c};height:22px;border-radius:4px"></div>`:'';
+  const exc=[...over.sort((a,b)=>b.diff-a.diff).map(r=>({r,k:'crit',t:`Lebih ${r.diff}`})),...under.sort((a,b)=>a.diff-b.diff).map(r=>({r,k:'warn',t:`Kurang ${-r.diff}`}))];
+  // heatmap
+  const days=[0,1,2,3,4].filter(d=>state.patterns.some(p=>p.days.includes(d)));
+  const heat=(ri,ci)=>valid.reduce((a,x)=>a+(x.days.includes(days[ci])&&ri>=x.s&&ri<x.s+x.len?1:0),0);
+  let peak={v:0};state.slots.forEach((s,ri)=>days.forEach((d,ci)=>{const v=heat(ri,ci);if(v>peak.v)peak={v,lab:DAYS[d]+' '+s.label}}));
+  // alerts
+  const al=[];const un=R.U.length;
+  al.push(un?{k:'crit',b:`✖ ${un} kumpulan`,t:'tidak dapat ditempatkan — perlu pensyarah tambahan.'}:{k:'good',b:'✔ Semua kumpulan',t:`ditempatkan (${valid.length}/${needT}), tiada pertindihan pensyarah atau bilik.`});
+  if(tba)al.push({k:'warn',b:`▲ ${tba} kelas PG/lain`,t:'belum ada pensyarah (TBA).'});
+  if(over.length)al.push({k:'crit',b:`✖ ${over.length} pensyarah`,t:'melebihi sasaran beban setahun.'});
+  if(under.length)al.push({k:'warn',b:`▲ ${under.length} pensyarah`,t:'di bawah sasaran beban setahun.'});
+  if(newSub)al.push({k:'warn',b:`▲ ${newSub} kumpulan`,t:'diajar pensyarah yang tidak mengajar subjek itu pada semester lepas (perlu semak kesediaan).'});
+  if(smallRoom)al.push({k:'warn',b:`▲ ${smallRoom} kumpulan`,t:'dalam bilik lebih kecil daripada kapasiti kelas.'});
+  const pres=document.body.classList.contains('present');
+  el.innerHTML=`
+  <div class="dash-hero"><div><h2>Gambaran Pengajaran BBA — Semester ${esc(state.cur)}</h2><div class="s">Program BBA (Kepujian), Pusat Pengajian Pengurusan Perniagaan (SBM), UUM · Jadual dijana ${esc(R.at)}</div></div>
+    <button class="btn sm" style="background:#fff" onclick="togglePresent()">${pres?'✕ Keluar mod persembahan (Esc)':'⛶ Mod persembahan'}</button></div>
+  <div class="kpis">
+    <div class="kpi"><div class="v">${fmt(students)}</div><div class="l">Pelajar UG berdaftar</div><div class="d">${state.courses.filter(c=>need(c)>0).length} kursus BBA ditawarkan</div></div>
+    <div class="kpi"><div class="v ${un?'bad':''}">${valid.length}<span style="font-size:16px;color:var(--mute)"> / ${needT}</span></div><div class="l">Kumpulan UG ditempatkan</div><div class="d">${roomsUsed.size} bilik digunakan</div></div>
+    <div class="kpi"><div class="v">${pgN+lainN}</div><div class="l">Kelas PG &amp; program lain</div><div class="d">${pgN} PG · ${lainN} program lain${tba?` · ${tba} TBA`:''}</div></div>
+    <div class="kpi"><div class="v">${teaching}</div><div class="l">Pensyarah mengajar</div><div class="d">${(rows.reduce((a,r)=>a+r.tot,0)/N).toFixed(1)} slot purata setahun</div></div>
+    <div class="kpi"><div class="v ${over.length+under.length?'':'ok'}">${on.length}<span style="font-size:16px;color:var(--mute)"> / ${rows.length}</span></div><div class="l">Tepat sasaran beban setahun</div><div class="d">${over.length} lebih · ${under.length} kurang</div></div>
+  </div>
+  <div class="dash-grid">
+    <div class="card"><h2>Kumpulan ditawarkan ikut kursus</h2><p class="h">Bilangan kumpulan UG semester ${esc(state.cur)}, dengan jumlah pelajar.</p>${hbars(cItems,{w:600})}</div>
+    <div class="card"><h2>Perkara perlu perhatian</h2><p class="h">Ringkasan isu daripada jadual dan beban pensyarah.</p>${al.map(a=>`<div class="alert ${a.k}"><b>${a.b}</b><span>${a.t}</span></div>`).join('')}</div>
+    <div class="card"><h2>Keseimbangan beban setahun (${esc(sems.join(' + '))})</h2><p class="h">${rows.length} pensyarah berbanding sasaran setahun mengikut jenis.</p>
+      <div style="display:flex;gap:2px;margin:8px 0">${seg(under.length,'var(--warn)','Kurang')}${seg(on.length,'var(--good)','Tepat sasaran')}${seg(over.length,'var(--crit)','Lebih')}</div>
+      <div class="legend"><span><i style="background:var(--warn)"></i>▲ Kurang ${under.length}</span><span><i style="background:var(--good)"></i>✔ Tepat ${on.length}</span><span><i style="background:var(--crit)"></i>✖ Lebih ${over.length}</span></div>
+      ${exc.length?`<table style="margin-top:6px"><tr><th>Pensyarah</th><th>Setahun</th><th>Sasaran</th><th>Status</th></tr>${exc.slice(0,8).map(x=>`<tr><td>${esc(x.r.l.name.replace(/\s*\(\d+\)$/,''))}</td><td><b>${x.r.tot}</b></td><td>${x.r.t}</td><td><span class="tag ${x.k==='crit'?'bad':'warn'}">${x.k==='crit'?'✖':'▲'} ${x.t}</span></td></tr>`).join('')}</table>${exc.length>8?`<p class="muted">+ ${exc.length-8} lagi — lihat tab 6.</p>`:''}`:'<p class="ok"><b>✔ Semua pensyarah tepat sasaran.</b></p>'}</div>
+    <div class="card"><h2>Jumlah slot mengajar setiap semester</h2><p class="h">Tahun akademik semasa — slot UG dan PG/program lain. Semester lepas diambil dari rekod beban (tab 6).</p>
+      <div class="legend"><span><i style="background:var(--s1)"></i>UG BBA</span><span><i style="background:#eb6834"></i>PG / program lain</span></div>
+      ${columns(sems,[{name:'UG BBA',color:'var(--s1)',values:ugS},{name:'PG / program lain',color:'#eb6834',values:pgS}],{w:600,h:220})}</div>
+    <div class="card"><h2>Waktu kuliah paling sibuk</h2><p class="h">Bilangan kelas BBA berjalan serentak${peak.v?` · puncak: <b>${esc(peak.lab)}</b> (${peak.v} kelas)`:''}.</p>${heatmap(state.slots.map(s=>s.label),days.map(d=>DAYS[d]),heat,{w:600})}</div>
+    <div class="card"><h2>Sumbangan slot ikut jenis pensyarah</h2><p class="h">Slot UG + PG/lain semester ${esc(state.cur)}.</p>${hbars(tItems,{w:600})}</div>
+  </div>`;
+}
 
 /* IO */
 function openIO(){document.getElementById('io').classList.add('on');let bk=null;try{bk=JSON.parse(localStorage.getItem('bbaSched_backup')||'null')}catch(e){}
